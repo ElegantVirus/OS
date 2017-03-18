@@ -17,5 +17,7 @@ public class Main {
         vm.interpretACommand( "Mmmm");
         System.out.println(vm.toString());
 
+
+
     }
 }
