@@ -6,7 +6,7 @@ import RealMachine.RealMachine;
 
 public class PageTable {
     int PageTableNumber;
-
+/*
     public PageTable() {
         this.PageTableNumber = RealMachine.PTR.getPageTable();
         for(int i=0;i<10;i++) {
@@ -17,5 +17,5 @@ public class PageTable {
     public int getRealBlockNumber(int VirtualBlock) {
         String RBN = RealMachine.memory.getWord(RealMachine.PTR.getPageTable(), VirtualBlock);
         return Integer.parseInt(RBN);
-    }
+    }*/
 }
