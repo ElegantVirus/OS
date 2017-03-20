@@ -1,15 +1,15 @@
 package VirtualMachine;
 
-/**
- * Created by Evelina Bujytė on 2017-03-05.
- * Email:  evelina.buja@gmail.com
- */
+
 public class VirtualMachine {
     private int r1;
     private int r2;
     private short ic;
     private int ds;
     private int cs;
+    private  SFRegister sf;
+    //kaip mes sf updateinsim?
+
 //***************************************************
     /**
      * Pozymiu registras
@@ -23,18 +23,26 @@ public class VirtualMachine {
     public String end = "HALT";
     //***************************************************
 
-    //private List <LineOfSegment> dataSegment;
-    //private List <LineOfSegment> codeSegment;
-    private VirtualMachine() {
+
+    public VirtualMachine() {
+        sf = new SFRegister();
     }
 
     //Cs ir ds?
+    //why not
     public VirtualMachine(int cs, int ds) {
+        sf = new SFRegister();
         this.ds = ds;
         this.cs = cs;
-        //this.dataSegment = new ArrayList<LineOfSegment>();
-        //this.codeSegment = new ArrayList<LineOfSegment>();
-        //this.fillSegments();//fill that shit
+
+    }
+
+    public SFRegister getSf() {
+        return sf;
+    }
+
+    public void setSf(SFRegister sf) {
+        this.sf = sf;
     }
 
     public int getCs() {
@@ -77,15 +85,17 @@ public class VirtualMachine {
         this.r2 = r2;
     }
 
-    // preparations
-   /* private void fillSegments(){
-        //implementation of this should change
+    @Override
+    public String toString() {
+        return "VirtualMachine{" +
+                "r1=" + r1 +
+                ", r2=" + r2 +
+                ", ic=" + ic +
+                ", sf=" + sf.toString() +
+                '}';
+    }
 
-        //this.dataSegment.add(new LineOfSegment((short)0, "DATA".toCharArray()));
-        //this.dataSegment.add(new LineOfSegment((short)1, "100 ".toCharArray()));
-        //this.dataSegment.add(new LineOfSegment((short)2, "20  ".toCharArray()));
 
-    }*/
     //command interpretation
     public void interpretACommand(String command) {
 
@@ -128,60 +138,60 @@ public class VirtualMachine {
                     cr(x1, x2);
                     break;
                 }
-                case "AN": {
+                case "AN": {//and
                     and();
                     break;
                 }
-                case "XO": {
+                case "XO": {//xor
                     xor();
                     break;
                 }
-                case "OR": {
+                case "OR": {//or
                     or();
                     break;
                 }
-                case "NO": {
+                case "NO": {//not
                     not();
                     break;
                 }
-                case "JU": {
+                case "JU": {//jump
                     ju(x1, x2);
                     break;
                 }
-                case "JM": {
+                case "JM": {//jump if more
                     jm(x1, x2);
                     break;
                 }
-                case "JE": {
+                case "JE": {//jump if equal
                     je(x1, x2);
                     break;
                 }
-                case "JL": {
+                case "JL": {//jump if lower
                     jl(x1, x2);
                     break;
                 }
-                case "SM": {
+                case "SM": {//save to memory
                     sm(x1, x2);
                     break;
                 }
-                case "LM": {
+                case "LM": {//load from memory
                     lm(x1, x2);
                     break;
                 }
-                case "FR": {
+                case "FR": {//file read
 
                     break;
                 }
-                case "FV": {
+                case "FW": {//file write
 
                     break;
                 }
-                case "GD": {
+                case "GD": {//get data
                     gd(x1, x2);
 
                     break;
                 }
-                case "PD": {
+                case "PD": {//put data
                     pd(x1, x2);
                     break;
                 }
@@ -199,12 +209,12 @@ public class VirtualMachine {
         return temp;
     }
 
-    private int getFromAddress(int x1, int x2) {//<--------------------------------------------------------------------------NEEDS EDIT
+    private int getFromAddress(int x1, int x2) {//<-----------------------------------------------------------NEEDS EDIT
         //what data types should be used????
         return 5;
     }
 
-    private void putToAddress(int data, int x1, int x2) {//<--------------------------------------------------------------------------NEEDS EDIT
+    private void putToAddress(int data, int x1, int x2) {//<--------------------------------------------------NEEDS EDIT
         //what data types should be used????
 
     }
@@ -237,15 +247,19 @@ public class VirtualMachine {
 
         ic++;
     }
+    //TO DO: aritmetinese sf sutvarkysiu sian
 
     //ARITMETINES
     //AD – suma – prie esamos registro R1 reikšmės prideda reikšmę esančią x1x2 atminties baite, rezultatas
     //patalpinamas registre R1:      AD x1x2 => R1:=R1+[x1x2];
     private void ad(int x1, int x2) {
         int temp = getFromAddress(x1, x2);
-        //atatus flag
+        if ((r1+temp)>Integer.MAX_VALUE){
+            sf.setCf(true);
+        }
         r1 += temp;
-
+        if (r1 == 0)
+            sf.setZf(true);
         ic++;
     }
 
@@ -254,6 +268,10 @@ public class VirtualMachine {
     //patalpinamas registre R1:      SB x1x2 => R1:=R1-[x1x2];
     private void sb(int x1, int x2) {
         int temp = getFromAddress(x1, x2);
+        if (temp> r1)
+            sf.setCf(true);
+        if (temp == r1)
+            sf.setZf(true);
         //status flag
         r1 -= temp;
 
@@ -264,6 +282,9 @@ public class VirtualMachine {
     private void mu(int x1, int x2) {
         int temp = getFromAddress(x1, x2);
         //status flag
+        if ((r1*temp)>Integer.MAX_VALUE){
+            sf.setCf(true);
+        }
         r1 *= temp;
 
         ic++;
@@ -283,17 +304,20 @@ public class VirtualMachine {
     //PALYGINIMO
     //CR – palyginimas – esamą registro R1 reikšmė yra lyginama su reikšme esančią x1x2 atminties baite,
     //rezultatas patalpinamas registre C:       CR x1x2 =>
-    //          if R>[x1x2] then C:=0;
-    //          if R=[x1x2] then C:=1;
-    //          if R<[x1x2] then C:=2;
+    //          if R>[x1x2] then CF:=FALSE, ZF:= FALSE;
+    //          if R=[x1x2] then ZF:=TRUE;
+    //          if R<[x1x2] then CF:=TRUE;
     private void cr(int x1, int x2) {
         int temp = getFromAddress(x1, x2);
         if (r1 == temp) {
-
+            sf.setZf(true);
+            sf.setCf(false);
         } else if (r1 > temp) {
-
+            sf.setZf(false);
+            sf.setCf(false);
         } else { //r1<temp
-
+            sf.setZf(false);
+            sf.setCf(true);
         }
 
         ic++;
@@ -303,6 +327,8 @@ public class VirtualMachine {
     //AND
     private void and() {
         r1 = r1 & r2;
+        if(r1 == 0)
+            sf.setZf(true);
 
         ic++;
     }
@@ -310,6 +336,8 @@ public class VirtualMachine {
     //XOR
     private void xor() {
         r1 = r1 ^ r2;
+        if(r1 == 0)
+            sf.setZf(true);
 
         ic++;
     }
@@ -317,6 +345,8 @@ public class VirtualMachine {
     //OR
     private void or() {
         r1 = r1 | r2;
+        if(r1 == 0)
+            sf.setZf(true);
 
         ic++;
     }
@@ -324,11 +354,13 @@ public class VirtualMachine {
     //NOT
     private void not() {
         r1 = ~r1;
+        if(r1 == 0)
+            sf.setZf(true);
 
         ic++;
     }
 
-    //VALDYMO PERDAVIMO (JUMP'AI)//<-------------------------------------------------------------------------------------------------NEEDS EDIT
+    //VALDYMO PERDAVIMO (JUMP'AI)//<--------------------------------------------------------------------------NEEDS EDIT
     //JU – besąlyginio valdymo perdavimas – valdymas perduodamas adresu 16*x1+x2:
     //JU x1x2 => IC:=16*x1+x2;
     private void ju(int x1, int x2) {
@@ -404,16 +436,4 @@ public class VirtualMachine {
 
         ic++;
     }
-
-
-    @Override
-    public String toString() {
-        return "VirtualMachine{" +
-                "r1=" + r1 +
-                ", r2=" + r2 +
-                ", ic=" + ic +
-                '}';
-    }
-
-
 }
