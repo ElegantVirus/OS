@@ -1,5 +1,6 @@
 package VirtualMachine;
 
+<<<<<<< HEAD
 import Registers.*;
 
 /**
@@ -14,6 +15,52 @@ public class VirtualMachine {
 
     ModeRegister mode = new ModeRegister();
     TI_Register ti = new TI_Register();
+=======
+
+public class VirtualMachine {
+    private int r1;
+    private int r2;
+    private short ic;
+    private int ds;
+    private int cs;
+    private  SFRegister sf;
+    //kaip mes sf updateinsim?
+
+//***************************************************
+    /**
+     * Pozymiu registras
+     */
+ //   public static CRegister C;
+    /**
+     * Vartotojui isskiriama atmintis
+     */
+    static public PageTable PageTable;
+    public static UserMemory memory;
+    public String end = "HALT";
+    //***************************************************
+
+
+    public VirtualMachine() {
+        sf = new SFRegister();
+    }
+
+    //Cs ir ds?
+    //why not
+    public VirtualMachine(int cs, int ds) {
+        sf = new SFRegister();
+        this.ds = ds;
+        this.cs = cs;
+
+    }
+
+    public SFRegister getSf() {
+        return sf;
+    }
+
+    public void setSf(SFRegister sf) {
+        this.sf = sf;
+    }
+>>>>>>> origin/master
 
     public VirtualMachine(ModeRegister mode, TI_Register ti) {
 
@@ -40,6 +87,20 @@ public class VirtualMachine {
                 '}';
     }
 
+<<<<<<< HEAD
+=======
+    @Override
+    public String toString() {
+        return "VirtualMachine{" +
+                "r1=" + r1 +
+                ", r2=" + r2 +
+                ", ic=" + ic +
+                ", sf=" + sf.toString() +
+                '}';
+    }
+
+
+>>>>>>> origin/master
     //command interpretation
     public void interpretACommand(String command) {
 
@@ -201,6 +262,7 @@ public class VirtualMachine {
     //patalpinamas registre R1:      AD x1x2 => R1:=R1+[x1x2];
     private void ad(int x1, int x2) {
         int temp = getFromAddress(x1, x2);
+<<<<<<< HEAD
         if ((r1.getR()+temp)>Integer.MAX_VALUE){
             sf.setCf(true);
         }
@@ -210,15 +272,31 @@ public class VirtualMachine {
 
         short a = IC_Register.getIc();
         IC_Register.setIc(a++);    }
+=======
+        if ((r1+temp)>Integer.MAX_VALUE){
+            sf.setCf(true);
+        }
+        r1 += temp;
+        if (r1 == 0)
+            sf.setZf(true);
+        ic++;
+    }
+>>>>>>> origin/master
 
 
     //SB – atimtis – iš esamos registro R1 reikšmės atimama reikšmė esanti x1x2 atminties baite, rezultatas
     //patalpinamas registre R1:      SB x1x2 => R1:=R1-[x1x2];
     private void sb(int x1, int x2) {
         int temp = getFromAddress(x1, x2);
+<<<<<<< HEAD
         if (temp> r1.getR())
             sf.setCf(true);
         if (temp == r1.getR())
+=======
+        if (temp> r1)
+            sf.setCf(true);
+        if (temp == r1)
+>>>>>>> origin/master
             sf.setZf(true);
         //status flag
         r1.setR(r1.getR()-1);
@@ -232,10 +310,17 @@ public class VirtualMachine {
     private void mu(int x1, int x2) {
         int temp = getFromAddress(x1, x2);
         //status flag
+<<<<<<< HEAD
         if ((r1.getR()*temp)>Integer.MAX_VALUE){
             sf.setCf(true);
         }
         r1.setR(r1.getR()*temp);
+=======
+        if ((r1*temp)>Integer.MAX_VALUE){
+            sf.setCf(true);
+        }
+        r1 *= temp;
+>>>>>>> origin/master
 
 
         short a = IC_Register.getIc();
@@ -263,10 +348,17 @@ public class VirtualMachine {
     //          if R<[x1x2] then CF:=TRUE;
     private void cr(int x1, int x2) {
         int temp = getFromAddress(x1, x2);
+<<<<<<< HEAD
         if (r1.getR() == temp) {
             sf.setZf(true);
             sf.setCf(false);
         } else if (r1.getR() > temp) {
+=======
+        if (r1 == temp) {
+            sf.setZf(true);
+            sf.setCf(false);
+        } else if (r1 > temp) {
+>>>>>>> origin/master
             sf.setZf(false);
             sf.setCf(false);
         } else { //r1<temp
@@ -282,8 +374,13 @@ public class VirtualMachine {
     //LOGINES
     //AND
     private void and() {
+<<<<<<< HEAD
         r1.setR(r1.getR() & r2.getR());
         if(r1.getR() == 0)
+=======
+        r1 = r1 & r2;
+        if(r1 == 0)
+>>>>>>> origin/master
             sf.setZf(true);
 
 
@@ -293,8 +390,13 @@ public class VirtualMachine {
 
     //XOR
     private void xor() {
+<<<<<<< HEAD
         r1.setR(r1.getR() ^ r2.getR());
         if(r1.getR() == 0)
+=======
+        r1 = r1 ^ r2;
+        if(r1 == 0)
+>>>>>>> origin/master
             sf.setZf(true);
 
 
@@ -303,8 +405,13 @@ public class VirtualMachine {
 
     //OR
     private void or() {
+<<<<<<< HEAD
         r1.setR(r1.getR() | r2.getR());
         if(r1.getR() == 0)
+=======
+        r1 = r1 | r2;
+        if(r1 == 0)
+>>>>>>> origin/master
             sf.setZf(true);
 
 
@@ -313,14 +420,22 @@ public class VirtualMachine {
 
     //NOT
     private void not() {
+<<<<<<< HEAD
         r1.setR(~r1.getR());
         if(r1.getR() == 0)
+=======
+        r1 = ~r1;
+        if(r1 == 0)
+>>>>>>> origin/master
             sf.setZf(true);
 
 
+<<<<<<< HEAD
         short a = IC_Register.getIc();
         IC_Register.setIc(a++);    }
 
+=======
+>>>>>>> origin/master
     //VALDYMO PERDAVIMO (JUMP'AI)//<--------------------------------------------------------------------------NEEDS EDIT
     //JU – besąlyginio valdymo perdavimas – valdymas perduodamas adresu 16*x1+x2:
     //JU x1x2 => IC:=16*x1+x2;
@@ -400,7 +515,12 @@ public class VirtualMachine {
     private void pd(int x1, int x2) {
         //print getFromAddress(x1, x2);
 
+<<<<<<< HEAD
 
         short a = IC_Register.getIc();
         IC_Register.setIc(a++);    }
+=======
+        ic++;
+    }
+>>>>>>> origin/master
 }
