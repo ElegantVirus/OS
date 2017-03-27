@@ -3,6 +3,10 @@ package RealMachine;
 import Registers.*;
 import VirtualMachine.VirtualMachine;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class RealMachine {
 
     CommonUseRegisters r1 = new CommonUseRegisters();
@@ -17,21 +21,83 @@ public class RealMachine {
     IntRegister pi = new IntRegister();
     IntRegister si = new IntRegister();
 
+    List<VirtualMachine> vm;
+
+    //shows which part in userMemory belongs to VirtualMachine
+    static int ptr;
+    /**
+     * ptr nesikeičia !!!
+     * nuėmiau ptr iš atminties
+     */
+
+    ExternalMemory externalMemory;
+    UserMemory memory ;
+
     public RealMachine() {
-        VirtualMachine vm = new VirtualMachine(mode,ti);
+        //generating a singleton object
+        externalMemory = new ExternalMemory();
+        ptr = UserMemory.getPtr();
+        memory = new UserMemory();
+        vm = new ArrayList<VirtualMachine>();
+
+
+
+        try {
+            //if you want it to work with no program previously loaded, u gotta erase memory first -> fill blocks with zeros
+
+            externalMemory.eraseMemory();
+            String program = "DATA010000200080REZULTATASYRA:00CODELR000001AD000002SB000003PD000004PD000005PD000006PD000007SR000010PD000010HALT";
+            externalMemory.writeToDisk("Pr10", program);
+            //Vm size
+
+            //process = externalMemory.fillArray(externalMemory.searchInHDD("Pr10"));
+            //perkeliau i add process
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+/*
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 16; j++) {
+                for (int y = 0; y < 4; y++) {
+                    System.out.print((char) process[i][j][y]);
+
+                }
+                System.out.println();
+            }
+        }*/
+
 
     }
 
-    /**
-     * Page table block number
-     * TAI YRA EILUTES ADRESAS, eilute yra lentele. SUkuri vm, vadinasi, i kazkuri indeksa irasai adresa eilutes
-     * 16x16
-     * Reikia isskirti adresa vm, kai ja sukuri ir isskiri jai adresa
-     */
+    public void addProcess(String name){
+        byte[][][] process = new byte[16][16][4];
+        try {
+            process = externalMemory.fillArray(externalMemory.searchInHDD(name));
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+        memory.loadToSupervisory(process);
+        int vmPtr = memory.loadFromSupervisoryToVm();
+        if (vmPtr == -1){
+            System.out.println("Not enough memory");
+        }
+        else{
+            memory.printMemoryContents();
+            vm.add (memory.getVmCount()-1,new VirtualMachine(mode, ti, vmPtr));
+            vm.get(memory.getVmCount()-1).work();
+
+
+        }
+       // memory.supervisorMemory.fillTable();
+
+
+    }
 
 
 
-    ExternalMemory em = new ExternalMemory();
-    SupervisorMemory sm = new SupervisorMemory();
-    UserMemory um = new UserMemory();
 }
+
