@@ -30,28 +30,28 @@ public class VirtualMachine {
     @Override
     public String toString() {
         return "VirtualMachine{" +
-                "r1=" + r1 +
-                ", r2=" + r2 +
-                ", ic=" + ic.toString() +
+                "r1=" + r1.getR() +
+                ", r2=" + r2.getR() +
+                ", ic=" + ic.getIc() +
                 ", sf=" + sf.toString() +
                 '}';
     }
     public void work(){
 
-        pageTable.increaseDs();
+        pageTable.increaseCs();
         char [] command = new char [4];
         /**
          * eit tolyn per datasegmenta ir vykdyt po viena kol nesutiksim halt
          */
-        for (; pageTable.getDs()<256; pageTable.increaseDs()){
-            command = pageTable.getCharArrayAtAdress(pageTable.getDs());
+        for (; pageTable.getCs()<256; pageTable.increaseCs()){
+            command = pageTable.getCharArrayAtAddress(pageTable.getCs());
             String cmd = String.valueOf(command);
             if ((cmd.charAt(0) == 'H') && (cmd.charAt(1) == 'A')) {//HALT
 
                 /**
                  * todo halt stuff
                  */
-
+                halt();
                 break;
             }
             else{
@@ -67,7 +67,7 @@ public class VirtualMachine {
         } else {
             int x1 = charToInt(command.charAt(2));
             int x2 = charToInt(command.charAt(3));
-            short address = 2;
+            short address = (short)(x1*16+x2);
             String tempCommand = new StringBuilder().append(command.charAt(0)).append(command.charAt(1)).toString();//should simplify it :D
             switch (tempCommand) {
                 case "LR": {//load register
@@ -174,11 +174,28 @@ public class VirtualMachine {
     }
 
     private int getIntFromAddress(short address) {//<-----------------------------------------------------------NEEDS EDIT
-        return pageTable.getIntAtAddress(address);
+        char [] digits = pageTable.getCharArrayAtAddress(address);
+        int res= Integer.parseInt(new String(digits));
+        System.out.println("get int from array : "+res);
+        return res;
+    }
+    private void putToAddress(byte [] bytes, short address) {//<--------------------------------------------------NEEDS EDIT
+        int value = 1234;
+        char [] chars = String.valueOf(value).toCharArray();
+        pageTable.setBytesAtAddress(address,bytes);
+
     }
 
-    private void putToAddress(int data, short address) {//<--------------------------------------------------NEEDS EDIT
-        //what data types should be used????
+    private void putIntToAddress(int number, short address) {//<--------------------------------------------------NEEDS EDIT
+        if((number<9999) && (number>-999)){
+            int temp;
+            String s = number+"";
+            //while
+
+            //pageTable.setBytesAtAddress(address,bytes);
+
+        }
+
 
     }
 
@@ -190,16 +207,17 @@ public class VirtualMachine {
         r1.setR(getIntFromAddress(address));
 
         short a = IC_Register.getIc();
-        IC_Register.setIc(a++);
+        IC_Register.setIc(++a);
     }
 
     //SR – Save Register – iš registro R1 persiunčia į atminties baitą x1x2:
     //SR x1x2  => [x1x2]:=R1;
     private void sr(short address) {
-        putToAddress(r1.getR(), address);
+
+        putIntToAddress(r1.getR(), address);
 
         short a = IC_Register.getIc();
-        IC_Register.setIc(a++);
+        IC_Register.setIc(++a);
     }
 
     //RR – sukeičia registro R1 ir R2 reikšmes:
@@ -211,7 +229,7 @@ public class VirtualMachine {
         r2.setR(temp);
 
         short a = IC_Register.getIc();
-        IC_Register.setIc(a++);
+        IC_Register.setIc(++a);
     }
     //TO DO: aritmetinese sf sutvarkysiu sian
 
@@ -228,7 +246,7 @@ public class VirtualMachine {
             sf.setZf(true);
 
         short a = IC_Register.getIc();
-        IC_Register.setIc(a++);    }
+        IC_Register.setIc(++a);    }
 
 
     //SB – atimtis – iš esamos registro R1 reikšmės atimama reikšmė esanti x1x2 atminties baite, rezultatas
@@ -244,7 +262,7 @@ public class VirtualMachine {
 
 
         short a = IC_Register.getIc();
-        IC_Register.setIc(a++);
+        IC_Register.setIc(++a);
     }
 
     //MU -multiplication R1:=R1 *[x1x2];
@@ -258,7 +276,7 @@ public class VirtualMachine {
 
 
         short a = IC_Register.getIc();
-        IC_Register.setIc(a++);
+        IC_Register.setIc(++a);
     }
 
     //DI - division   R2:=R1 % [x1x2];-liekana R1:=R1 *[x1x2];
@@ -270,7 +288,7 @@ public class VirtualMachine {
 
 
         short a = IC_Register.getIc();
-        IC_Register.setIc(a++);
+        IC_Register.setIc(++a);
     }
 
 
@@ -295,7 +313,7 @@ public class VirtualMachine {
 
 
         short a = IC_Register.getIc();
-        IC_Register.setIc(a++);
+        IC_Register.setIc(++a);
     }
 
     //LOGINES
@@ -307,7 +325,7 @@ public class VirtualMachine {
 
 
         short a = IC_Register.getIc();
-        IC_Register.setIc(a++);
+        IC_Register.setIc(++a);
     }
 
     //XOR
@@ -318,7 +336,7 @@ public class VirtualMachine {
 
 
         short a = IC_Register.getIc();
-        IC_Register.setIc(a++);    }
+        IC_Register.setIc(++a);    }
 
     //OR
     private void or() {
@@ -328,7 +346,7 @@ public class VirtualMachine {
 
 
         short a = IC_Register.getIc();
-        IC_Register.setIc(a++);    }
+        IC_Register.setIc(++a);    }
 
     //NOT
     private void not() {
@@ -338,7 +356,7 @@ public class VirtualMachine {
 
 
         short a = IC_Register.getIc();
-        IC_Register.setIc(a++);    }
+        IC_Register.setIc(++a);    }
 
     //VALDYMO PERDAVIMO (JUMP'AI)//<--------------------------------------------------------------------------NEEDS EDIT
     //JU – besąlyginio valdymo perdavimas – valdymas perduodamas adresu 16*x1+x2:
@@ -350,30 +368,43 @@ public class VirtualMachine {
         /**
          * AR JUMPAI GALI TAIP ATRODYT????
          */
-        pageTable.setDs(address);
+        pageTable.setCs(address);
         short a = IC_Register.getIc();
-        IC_Register.setIc(a++);
+        IC_Register.setIc(++a);
 
 
     }
 
     // JM – sąlyginio valdymo perdavimas (jeigu daugiau) – valdymas perduodamas jeigu C=0, valdymas perduodamas adresu 16*x1+x2:
-    // Jm x1x2 =) If C=0 then IC:= 16*x1+x2;
+    // Jm x1x2 =) If C=0 then Ds:= 16*x1+x2;
     private void jm(short address) {
         //kaip su sf reikia apsibrezt
+        if(sf.getCf()==false && sf.getZf()==false){
+            pageTable.setCs(address);
+        }
+        short a = IC_Register.getIc();
+        IC_Register.setIc(++a);
 
     }
 
     // JE – sąlyginio valdymo perdavimas (jeigu lygu) – valdymas perduodamas jeigu C=1, valdymas perduodamas adresu 16*x1+x2:
     //JE x1x2 =)  If C=1 then IC:= 16*x1+x2;
     private void je(short address) {
-
+        if(sf.getZf()==true){
+            pageTable.setCs(address);
+        }
+        short a = IC_Register.getIc();
+        IC_Register.setIc(++a);
     }
 
     //JL – sąlyginio valdymo perdavimas (jeigu mažiau) – valdymas perduodamas jeigu C=2, valdymas perduodamas adresu 16*x1+x2:
     //JL x1x2 =)  If C=2 then IC:= 16*x1+x2;
     private void jl(short address) {
-
+        if(sf.getCf()==true){
+            pageTable.setCs(address);
+        }
+        short a = IC_Register.getIc();
+        IC_Register.setIc(++a);
     }
 
     //DARBO SU BENDRA ATMINTIES SRITIMI (prieinama visoms vartotojo programoms; komandos leidžia į ją rašyti ir skaityti; sritis apsaugoma semaforais):
@@ -393,7 +424,7 @@ public class VirtualMachine {
 
 
         short a = IC_Register.getIc();
-        IC_Register.setIc(a++);    }
+        IC_Register.setIc(++a);    }
 
     //PABAIGOS
     // HALT – programos pabaigos komanda.
@@ -402,7 +433,7 @@ public class VirtualMachine {
 
 
         short a = IC_Register.getIc();
-        IC_Register.setIc(a++);    }
+        IC_Register.setIc(++a);    }
 
     //IVEDIMO /ISVEDIMO
     //FR - file read
@@ -419,13 +450,12 @@ public class VirtualMachine {
 
 
         short a = IC_Register.getIc();
-        IC_Register.setIc(a++);    }
+        IC_Register.setIc(++a);    }
 
     // PD – išvedimas – iš atminties, pradedant atminties baitu 16*x1+x2 paima 1 žodžio srautą ir jį išveda į ekraną:
     //PD x1x2
     private void pd(short address) {
-        //print getFromAddress(x1, x2);
-
+        System.out.println(getIntFromAddress(address));
 
         short a = IC_Register.getIc();
         IC_Register.setIc(a++);    }

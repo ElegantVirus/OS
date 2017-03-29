@@ -28,11 +28,11 @@ public class PageTable {
     public short getDs() {
         return ds;
     }
-    public void increaseDs(){
-        this.ds +=1;
+    public void increaseCs(){
+        this.cs +=1;
     }
-    public void setDs (short ds){
-        this.ds = ds;
+    public void setCs (short cs){
+        this.cs = cs;
     }
 
     private void fillTable(int vmPtr) {
@@ -43,9 +43,10 @@ public class PageTable {
                 table[i * 16 + j][1] = j;
             }
         }
+        printPagetable();
     }
     private void setCsDs(){
-        this.cs = 128;
+        this.cs = 1;
         this.ds = 0;
         /**
          * todo implement
@@ -53,6 +54,13 @@ public class PageTable {
          * dar galima idet patikrinima  i setinima ir gettinima
          * ar tikrai nevirsija datasegmento reziu
          */
+        char [] temp = new char [4];
+        for(; this.cs<256; this.cs++){
+            temp = getCharArrayAtAddress( this.cs);
+            if((temp [0]== 'C')&&(temp [1]== 'O')&&(temp [2]== 'D')&&(temp [3]== 'E')){
+                break;
+            }
+        }
 
     }
 
@@ -68,7 +76,7 @@ public class PageTable {
         return UserMemory.getIntAtAddress(x1, x2);
     }
 
-    public char [] getCharArrayAtAdress(short address) {
+    public char [] getCharArrayAtAddress(short address) {
         int x1 = this.table[address][0];
         int x2 = this.table[address][1];
         return UserMemory.getCharArrayAtAddress(x1, x2);
@@ -77,6 +85,13 @@ public class PageTable {
         int x1 = this.table[address][0];
         int x2 = this.table[address][1];
         UserMemory.setBytesAtAddress(x1,x2,bytes);
+    }
+    public void printPagetable(){
+        char [] temp;
+        for(short i = 0; i<256; i++){
+            temp = getCharArrayAtAddress(i);
+            System.out.println(i+": "+temp [0]+temp [1]+temp [2]+temp [3]);
+        }
     }
 
 }

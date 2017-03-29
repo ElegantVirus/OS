@@ -46,7 +46,7 @@ public class RealMachine {
             //if you want it to work with no program previously loaded, u gotta erase memory first -> fill blocks with zeros
 
             externalMemory.eraseMemory();
-            String program = "DATA010000200080REZULTATASYRA:00CODELR000001AD000002SB000003PD000004PD000005PD000006PD000007SR000010PD000010HALT";
+            String program = "DATA-10000200080REZULTATASYRA:00CODELR01AD02HALT";
             externalMemory.writeToDisk("Pr10", program);
             //Vm size
 
@@ -82,13 +82,17 @@ public class RealMachine {
         }
         memory.loadToSupervisory(process);
         int vmPtr = memory.loadFromSupervisoryToVm();
-        if (vmPtr == -1){
+        if (vmPtr == -2){
+            System.out.println("Wrong commands were found");
+        }
+        else if (vmPtr == -1){
             System.out.println("Not enough memory");
         }
         else{
             memory.printMemoryContents();
             vm.add (memory.getVmCount()-1,new VirtualMachine(mode, ti, vmPtr));
             vm.get(memory.getVmCount()-1).work();
+            System.out.println(vm.get(memory.getVmCount()-1).toString());
 
 
         }

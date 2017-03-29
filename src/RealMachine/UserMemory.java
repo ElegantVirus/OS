@@ -41,7 +41,7 @@ public class UserMemory {
      * vietoj jos parasiau tris metodus:
      * loadToSupervisory - ikelia proceso bloka i ja
      * isSupervisoryCommandsOk -patikrina ar geros komandos, ją iskviecia loadFromSupervisoryToVm
-     * loadFromSupervisoryToVm - grazina vm ptr, o jei netelpa  arba negeros komandos -1
+     * loadFromSupervisoryToVm - grazina vm ptr, o jei netelpa  -1 arba negeros komandos -2
      *
      * getRandomFreeBlock (size); size kiek bloku norime gauti; rezultatas bloku numeriu masyvas,
      * jei netelpa masyve pirmas elementas -1
@@ -80,30 +80,99 @@ public class UserMemory {
             System.out.print("***\n");
         }
     }
+    private int charToInt(char ch) {
+        //TODO: prideti apribojimus kad ne raide n shit
+        int temp = (char) (ch - '0');
+        return temp;
+    }
     private boolean isSupervisoryCommandsOk(){
         /**
-         * TODO implement
+         * TODO check data segment
          * patikrinti ne tik komandas bet ir skaicius ir tt
          */
+
+        boolean codeSegmentIsFound = false;
         for (int i = 1 ; i<=16; i++){
             for (int j = 0; j < 16; j++){
-                /*String command  ;
-                switch (command){
-                    case "bla" :
-                    case "HALT":
+                char [] command = getCharArrayAtAddress(i,j);
+                if((command [0]== 'C')&&(command [1]== 'O')&&(command [2]== 'D')&&(command [3]== 'E')){
+                    codeSegmentIsFound = true;
+                }
+               if (codeSegmentIsFound){
+                   String tempCommand = new StringBuilder().append(command[0]).append(command[1]).toString();//should simplify it :D
+                   switch (tempCommand) {
+                       case"CO": {
+                           if ((command[2] == 'D') && (command[3] == 'E')) {
+                               break;
+                           } else
+                               return false;
+                       }
+                       case "LR":
+                       case "SR":
+                       case "RR":
+                       case "AD":
+                       case "SB":
+                       case "MU":
+                       case "DI":
+                       case "CR":
+                       case "AN":
+                       case "XO":
+                       case "OR":
+                       case "NO":
+                       case "JU":
+                       case "JM":
+                       case "JE":
+                       case "JL":
+                       case "SM":
+                       case "LM": {
+                           if ((Character.isDigit(command[2]))&&(Character.isDigit(command[3]))){
+                               int x1 = charToInt(command[2]);
+                               int x2 = charToInt(command[3]);
+                               if ((x1*16+x2)<256 &&((x1*16+x2)>0)){
+                                   break;
+                               }
+                               else{
+                                   return false;
+                               }
+                           }
+                           else {
+                               return false;
+                           }
+                       }
 
+                       case "FR": //file read papildomo patikrinimo reikia ten kur komentarai
+                       case "FW": //file write
 
-                    default:
-                        return false;
+                       case "GD": //get data
 
-                }*/
+                       case "PD": //put data
+                       {
+                           /**
+                            * todo papildomi patikrimai siom 4 komandom nes jos turi kviest interuptus
+                            */
+                           break;
+                       }
+                       case "HA": {
+                           if ((command[2] == 'L') && (command[3] == 'T')) {
+                               return true;
+                           } else
+                               return false;
+                       }
+                       default: {
+
+                           System.out.println("Wrong command found in supervisory memory's code segment");
+                           return false;
+                       }
+                   }
+                   return true;
+               }
             }
         }
-        return true;
+        return codeSegmentIsFound; // fill be false if there was no 'CODE' tag
     }
     public int loadFromSupervisoryToVm(){
-        if (isSupervisoryCommandsOk()==false)
-            return -1;//commands were wrong
+        if (!isSupervisoryCommandsOk())
+            return -2;//commands were wrong
         int [] vmAddresses = new int [17];
         vmAddresses =getRandomFreeBlock(17);
         if(vmAddresses[0] == -1){
@@ -212,8 +281,8 @@ public class UserMemory {
         for (int i = 0; i < MEMORY_SIZE; i++) {
             System.out.print(i+"  ***");
             for (int j = 0; j < 16; j++)
-                //System.out.print(" "+ Arrays.toString(getCharArrayAtAddress(i, j))+" |");
-                System.out.print(" "+(ByteBuffer.wrap( memory[i][j]).getInt())+" |");
+                System.out.print(" "+ Arrays.toString(getCharArrayAtAddress(i, j))+" |");
+                //System.out.print(" "+(ByteBuffer.wrap( memory[i][j]).getInt())+" |");
             System.out.print("***\n");
         }
     }

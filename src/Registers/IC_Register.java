@@ -18,7 +18,7 @@ public class IC_Register {
         return ic;
     }
 
-    public static void setIc(short ic) {
-        ic = ic;
+    public static void setIc(short ic1) {
+        ic = ic1;
     }
 }
