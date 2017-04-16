@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/os/Memory.java</file>
+            <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/os/Debug.java</file>
+            <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/os/Main.java</file>
+            <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/RealMachine/SupervisorMemory.java</file>
+            <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/RealMachine/UserMemory.java</file>
+            <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/Registers/Ch_Register.java</file>
+            <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/os/ProgramIn.java</file>
+            <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/RealMachine/RealMachine.java</file>
+            <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/RealMachine/ExternalMemory.java</file>
+            <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/VirtualMachine/PageTable.java</file>
+        </group>
+    </open-files>
+</project-private>
