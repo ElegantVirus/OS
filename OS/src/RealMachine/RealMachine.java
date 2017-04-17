@@ -2,6 +2,7 @@ package RealMachine;
 
 import Registers.*;
 import VirtualMachine.VirtualMachine;
+import java.awt.Color;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
+import os.Main;
 
 public class RealMachine {
 
@@ -26,7 +28,7 @@ public class RealMachine {
     IntRegister pi = new IntRegister();
     IntRegister si = new IntRegister();
 
-    List<VirtualMachine> vm;
+    public static List<VirtualMachine> vm;
 
     //shows which part in userMemory belongs to VirtualMachine
     static int ptr;
@@ -35,7 +37,7 @@ public class RealMachine {
      */
 
     public static ExternalMemory externalMemory;
-    UserMemory memory;
+    public static UserMemory memory;
 
     public RealMachine() {
         //generating a singleton object
@@ -57,51 +59,54 @@ public class RealMachine {
 
     public void addProcess(String name) {
         
-        byte[][][] process= new byte[16][16][4];;
+        byte[][][] process= new byte[16][16][4];
+        
         try {
             process = externalMemory.fillArray(externalMemory.searchInHDD(name));           // System.out.print(externalMemory.readBlock(externalMemory.searchInHDD(name)));
 
-            for (int i = 1; i < 16; i++) {
+      /*      for (int i = 0; i < 16; i++) {
                 for (int j = 0; j < 16; j++) {
                     for (int y = 0; y < 4; y++) {
                         System.out.print((char)process[i][j][y]);
                     }
+                System.out.println();
                 }
-            }
+            }*/
         } catch (IOException ex) {
             Logger.getLogger(RealMachine.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        
-
-            
+       
         memory.loadToSupervisory(process);
         int vmPtr = memory.loadFromSupervisoryToVm();
         if (vmPtr == -2) {
-            errorMsg("Wrong commands were found");
-            // System.out.println("Wrong commands were found");
+            toConsole("Wrong commands were found");
         } else if (vmPtr == -1) {
-            errorMsg("Not enough memory");
-            //System.out.println("Not enough memory");
+            toConsole("Not enough memory");
         } else {
-            memory.printMemoryContents();
+            toConsole("Program has been successfully loaded");
+          //  memory.printMemoryContents();
             vm.add(memory.getVmCount() - 1, new VirtualMachine(mode, ti, vmPtr));
-            vm.get(memory.getVmCount() - 1).work();
-            System.out.println(vm.get(memory.getVmCount() - 1).toString());
+            //vm.get(memory.getVmCount() - 1).work();
+          //  System.out.println(vm.get(memory.getVmCount() - 1).toString());
 
         }
         // memory.supervisorMemory.fillTable();
 
     }
 
-    public void errorMsg(String message) {
-        JFrame frame = new JFrame(message);
-        frame.setSize(100, 200);
+    public static void toConsole(String message) {
+        Main.console.setForeground(Color.red);
+      //  Main.console.setText(null);
+        Main.console.append(message+'\n');
+        Main.console.setForeground(Color.black);
+      /*  JFrame frame = new JFrame(message);
+        frame.setSize(200, 100);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         JLabel label = new JLabel(message, SwingConstants.CENTER);
         frame.setResizable(false);
         frame.add(label);
-        frame.setVisible(true);
+        frame.setVisible(true);*/
     }
 
 }

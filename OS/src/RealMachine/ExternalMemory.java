@@ -13,8 +13,7 @@ public class ExternalMemory {
         initializeMemory("hdd1.txt");
     }
 
-
-    public void initializeMemory(String name){
+    public void initializeMemory(String name) {
         word = new byte[5];
 
         try {
@@ -23,6 +22,7 @@ public class ExternalMemory {
             e.printStackTrace();
         }
     }
+
     public void eraseMemory() throws IOException {
 
         byte[] bytes = {48, 48, 48, 48};
@@ -71,7 +71,8 @@ public class ExternalMemory {
      * Writes data to block
      *
      * @param block data to write to memory
-     * @param pos   position at which to start (reachable through WriteToDisc method or searchInHDD, if you want to rewrite
+     * @param pos position at which to start (reachable through WriteToDisc
+     * method or searchInHDD, if you want to rewrite
      * @throws IOException
      */
     private void writeToBlock(String block, long pos) throws IOException {
@@ -89,15 +90,17 @@ public class ExternalMemory {
                 i++;
             }
 
-            if (i >= bblock.length)
+            if (i >= bblock.length) {
                 break;
+            }
         }
 
     }
 
     /**
-     * Memory block's,or program's, name is written in the first 16 bytes of our HDD file.
-     * Method finds the name, which is 4 bytes long, and it's number (1...16), then, accordingly, finds it's memory block
+     * Memory block's,or program's, name is written in the first 16 bytes of our
+     * HDD file. Method finds the name, which is 4 bytes long, and it's number
+     * (1...16), then, accordingly, finds it's memory block
      *
      * @param name name of the program,memory block (4bytes)
      * @return the place where block's data starts
@@ -121,15 +124,17 @@ public class ExternalMemory {
                 //    break;
             }
         }
-        if (blockPosition == -1)
+        if (blockPosition == -1) {
             System.out.println("toks failas neegzistuoja");
+        }
         return blockPosition;
     }
 
     /**
      * Method to output specific memory block
      *
-     * @param pos position of the block we want to output, get it from searchInHdd method
+     * @param pos position of the block we want to output, get it from
+     * searchInHdd method
      * @throws IOException
      */
     public String readBlock(long pos) throws IOException {
@@ -138,38 +143,51 @@ public class ExternalMemory {
         /**
          * TODO skip first program's enter
          */
-      //  if(pos == 0)
+        //  if(pos == 0)
 
         for (int i = 0; i < 16; i++) {
-            chunk = chunk + file.readLine()+'\n';
-          //  System.out.println(file.readLine());
+            chunk = chunk + file.readLine() + '\n';
+            //  System.out.println(file.readLine());
         }
         return chunk;
     }
 
     public byte[][][] fillArray(long pos) throws IOException {
-/**
- * TODO fix putting data to array, there are empty places now, something fishy.
- */
+        /**
+         * TODO fix putting data to array, there are empty places now, something
+         * fishy.
+         */
         file.seek(pos);
+        //   String all = readBlock(pos);
+
         byte[][][] memoryArray = new byte[16][16][4];
+        byte[] temp = new byte[5];
 
         byte c = 0;
+        int i = 0, j = 0, y = 0;
 
-        for (int i = 0; i < 16; i++) {
-
-            for (int j = 0; j < 16; j++) {
-
-                for (int y = 0; y < 4; y++) {
+        while (i < 16) {
+            while (j < 16) {
+                while (y < 5) {
+                    //if ((c != 32) && 
                     c = file.readByte();
-                    if (c != 32)
-                        memoryArray[i][j][y] = c;
-                    //    System.out.print((char) memoryArray[i][j][y]);
+                    if ((c != '\n') && (c != '\r') && (c != 0)) {
+                        //    System.out.print((char) memoryArray[i][j][y]);
+                        temp[y] = c;
+                        y++;
+                    }
                 }
+                memoryArray[i][j][0] = temp[0];
+                memoryArray[i][j][1] = temp[1];
+                memoryArray[i][j][2] = temp[2];
+                memoryArray[i][j][3] = temp[3];
+                y = 0;
+                j++;
             }
-            //because there are 81 symbol in a row, 81st is a newline
-            file.seek(file.getFilePointer() + 1);
+            j = 0;
+            i++;
         }
+
         return memoryArray;
     }
 

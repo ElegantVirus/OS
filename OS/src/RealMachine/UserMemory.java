@@ -28,7 +28,6 @@ public class UserMemory {
      * reiktu sutvarkyt veliau, nes tai leis sukurti max 16 vm per os gyvavima
      * ty jei bus daugiau mes array bound exeptiona
      */
-
     // public SupervisorMemory supervisorMemory;
     /**
      * nenaudoju atskiros Supervisor memory :(
@@ -61,18 +60,33 @@ public class UserMemory {
     }
 
     public void loadToSupervisory(byte[][][] process) {
-        for (int i = 1; i <= 16; i++) {
-            memory[i] = process[i - 1];
-        }
 
-        /*       System.out.println("supervisory:");
-        for (int i =1; i <= 16; i++) {
-            System.out.print(i+"  ***");
-            for (int j = 0; j < 16; j++)
-                for (int y = 0; y < 4; y++)
-                    System.out.print(((char) memory[i][j][y]));
-            System.out.print("***\n");
-        }*/
+        boolean codeWasFound = false;
+        cleanSupervisory();
+        int ii = 0, jj = 0;
+        for (int i = 1; (i <= 16) && (ii <= 16); i++, ii++) {
+            for (int j = 0; j < 16; j++, jj = (jj + 1) % 16) {
+                char[] c = new char[4];
+                c[0] = (char) process[i - 1][j][0];
+                c[1] = (char) process[i - 1][j][1];
+                c[2] = (char) process[i - 1][j][2];
+                c[3] = (char) process[i - 1][j][3];
+                // System.out.println(i+" "+j+"  :"+c[0]+c[1]+c[2]+c[3]);
+                if ((c[0] == 'C') && (c[1] == 'O') && (c[2] == 'D') && (c[3] == 'E')) {
+                    codeWasFound = true;
+                    //cleanSupervisory(i,j);
+                    ii = 9;
+                    jj = 0;
+                }
+                if (codeWasFound) {
+                    // memory[i][j] = temp;
+                    memory[ii][jj] = process[i - 1][j];
+
+                } else {
+                    memory[i][j] = process[i - 1][j];
+                }
+            }
+        }
     }
 
     private int charToInt(char ch) {
@@ -88,7 +102,7 @@ public class UserMemory {
          */
 
         boolean codeSegmentIsFound = false;
-        for (int i = 1; i <= 16; i++) {
+        for (int i = 0; i <= 16; i++) {
             for (int j = 0; j < 16; j++) {
                 char[] command = getCharArrayAtAddress(i, j);
                 if ((command[0] == 'C') && (command[1] == 'O') && (command[2] == 'D') && (command[3] == 'E')) {
@@ -161,11 +175,11 @@ public class UserMemory {
                             return false;
                         }
                     }
-                    return true;
+                    // return true;
                 }
             }
         }
-        return codeSegmentIsFound; // fill be false if there was no 'CODE' tag
+        return false; // fill be false if there was no 'CODE' tag
     }
 
     public int loadFromSupervisoryToVm() {
@@ -219,12 +233,27 @@ public class UserMemory {
         }
     }
 
-    void freeVmMemory(int vmPtr) {
-        /**
-         * TODO: Implement isEmpty true uzzymet, o ar pacioj atminti nulius reik
-         * perrasyt nezinau gal tiesiog palikt siuksles ??
-         *
-         */
+    public void cleanSupervisory() {
+        cleanSupervisory(1, 0);
+
+    }
+
+    private void cleanSupervisory(int x1, int x2) {
+        byte[] temp = new byte[4];
+        temp[0] = Byte.parseByte("0");
+        temp[1] = Byte.parseByte("0");
+        temp[2] = Byte.parseByte("0");
+        temp[3] = Byte.parseByte("0");
+
+        for (int j = x2; (x1 >= 1) && (j < 16); j++) {
+            memory[x1][j] = temp;
+        }
+        for (int i = x1 + 1; (x1 >= 1) && (i <= 16); i++) {
+            for (int j = 0; j < 16; j++) {
+                memory[i][j] = temp;
+            }
+        }
+
     }
 
     /* public void loadToMemory(byte[][][] process) {
@@ -240,7 +269,6 @@ public class UserMemory {
                     System.out.print(((char) memory[i][j][y]));
 
     }*/
-
     public int vmAddressTableAddress(int num) {
         return (num * 16) + num;
 
@@ -288,7 +316,7 @@ public class UserMemory {
         }*/
         String mem = null;
 
-        for (int i = 1; i < MEMORY_SIZE; i++) {
+        for (int i = 0; i < MEMORY_SIZE; i++) {
             //      System.out.print(i+"  ***");
             for (int j = 0; j < 16; j++) {
                 for (int y = 0; y < 4; y++) {

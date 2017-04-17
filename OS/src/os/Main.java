@@ -7,6 +7,7 @@ package os;
 
 import RealMachine.RealMachine;
 import static RealMachine.RealMachine.externalMemory;
+import static RealMachine.RealMachine.vm;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Vector;
@@ -44,8 +45,8 @@ public class Main extends javax.swing.JFrame {
             externalMemory.writeToDisk("Pr11", program);
             programs.add("Pr11");
 
-            externalMemory.writeToDisk("Pr01", program);
-            programs.add("Pr01");
+            externalMemory.writeToDisk("BAD1", "DATA-10000200080REZULTATASYRA:00CODELX01AD02HALT");
+            programs.add("BAD1");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -133,9 +134,8 @@ public class Main extends javax.swing.JFrame {
         text.setRows(5);
         jScrollPane3.setViewportView(text);
 
-        console.setBackground(new java.awt.Color(0, 0, 0));
+        console.setBackground(new java.awt.Color(204, 204, 204));
         console.setColumns(20);
-        console.setForeground(new java.awt.Color(255, 255, 255));
         console.setRows(5);
         jScrollPane2.setViewportView(console);
 
@@ -223,7 +223,9 @@ public class Main extends javax.swing.JFrame {
     private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runButtonActionPerformed
         // TODO add your handling code here:
         String name = programList.getSelectedValue();
-
+        RealMachine.vm.get(RealMachine.memory.getVmCount() - 1).work();
+       // RealMachine.toConsole("Program successfully runned");
+        RealMachine.toConsole("r1: "+VirtualMachine.VirtualMachine.r1.getR());
     }//GEN-LAST:event_runButtonActionPerformed
 
     private void programListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_programListValueChanged
@@ -288,7 +290,7 @@ public class Main extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addButton;
-    private javax.swing.JTextArea console;
+    public static javax.swing.JTextArea console;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
