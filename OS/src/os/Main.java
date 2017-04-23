@@ -42,7 +42,7 @@ public class Main extends javax.swing.JFrame {
             externalMemory.writeToDisk("Pr10", program);
             programs.add("Pr10");
 
-            externalMemory.writeToDisk("Pr11", program);
+            externalMemory.writeToDisk("Pr11", "DATA-10000000000REZULTATASYRA:00CODELR01AD02HALT");
             programs.add("Pr11");
 
             externalMemory.writeToDisk("BAD1", "DATA-10000200080REZULTATASYRA:00CODELX01AD02HALT");

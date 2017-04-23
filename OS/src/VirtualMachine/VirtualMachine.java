@@ -75,6 +75,7 @@ public class VirtualMachine {
             }
         }
     }
+ 
 
     //command interpretation
     public void interpretACommand(String command) {

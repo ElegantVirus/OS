@@ -5,14 +5,17 @@
         <group>
             <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/os/Memory.java</file>
             <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/os/Debug.java</file>
-            <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/os/Main.java</file>
-            <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/RealMachine/SupervisorMemory.java</file>
             <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/RealMachine/UserMemory.java</file>
             <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/Registers/Ch_Register.java</file>
             <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/os/ProgramIn.java</file>
             <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/RealMachine/RealMachine.java</file>
+            <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/Registers/IC_Register.java</file>
             <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/RealMachine/ExternalMemory.java</file>
+            <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/Registers/CommonUseRegisters.java</file>
             <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/VirtualMachine/PageTable.java</file>
+            <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/os/Main.java</file>
+            <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/RealMachine/SupervisorMemory.java</file>
+            <file>file:/C:/Users/ElDiablo/Documents/NetBeansProjects/OS/src/VirtualMachine/VirtualMachine.java</file>
         </group>
     </open-files>
 </project-private>
