@@ -15,6 +15,7 @@ public class TI_Register {
 
     public static void setTi(short ti) {
         TI_Register.ti = ti;
+        os.Logger.writeToLog("timer has been set to"+ti+'\n');
     }
 
     @Override

@@ -3,11 +3,17 @@ package RealMachine;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ExternalMemory {
 
     public RandomAccessFile file;
     byte[] word;
+    public HashMap<String, Long> fileMap = new HashMap<String, Long>();
+    int pointer = 21105;
 
     public ExternalMemory() {
         initializeMemory("hdd1.txt");
@@ -139,7 +145,7 @@ public class ExternalMemory {
      */
     public String readBlock(long pos) throws IOException {
         file.seek(pos);
-        String chunk = null;
+        String chunk = "";
         /**
          * TODO skip first program's enter
          */
@@ -155,8 +161,7 @@ public class ExternalMemory {
     public byte[][][] fillArray(long pos) throws IOException {
         /**
          * TODO fix putting data to array, there are empty places now, something
-         * fishy.
-         * FIXED
+         * fishy. FIXED
          */
         file.seek(pos);
         //   String all = readBlock(pos);
@@ -197,4 +202,143 @@ public class ExternalMemory {
         return ((pos / 5) * 1314) + 81;
     }
 
+    /**
+     *
+     * @param name name - key of fileMap
+     * @param text later converted to bytes
+     * @throws IOException
+     */
+    public void addFile(String name, String text) throws IOException {
+
+        file.seek(pointer);
+        //rašome failą toje vietoje,kur esame (prie pabaigos)  
+        //  file.writeBytes("\r\n");
+        fileMap.put(name, file.getFilePointer());
+        cleanBlock(fileMap.get(name));
+
+        writeToBlock(text + "EOF", fileMap.get(name));
+        pointer = pointer + 1312;//text.getBytes().length;
+    }
+
+    /**
+     *
+     * @param pos position at which to start cleaning
+     * @throws IOException
+     */
+    public void cleanBlock(long pos) throws IOException {
+        file.seek(pos);
+
+        byte[] bytes = {48, 48, 48, 48};
+
+        for (int y = 0; y < 16; y++) {
+            file.writeBytes("\r\n");
+            for (int j = 0; j < 16; j++) {
+                file.write(bytes);
+                file.write(32);
+            }
+        }
+    }
+
+    /**
+     * Fills given file's space 16x16x4 with zeroes
+     *
+     * @param name file name - fileMap key
+     * @throws IOException
+     */
+    public void deleteFile(String name) throws IOException {
+        cleanBlock(fileMap.get(name));
+    }
+
+    /**
+     * Reads from the file's address up until the EOF string comes up
+     *
+     * @param name to find the file
+     * @return String program's text
+     * @throws IOException
+     */
+    public String fileReadFull(String name) throws IOException {
+
+        String temp = "";
+
+        for (int i = 0; i < 16; i++) {
+            for (int j = 0; j < 16; j++) {
+                for (int y = 0; y < 4; y++) {
+                    temp = temp + (char) (fillArray(fileMap.get(name))[i][j][y]);
+                }
+            }
+        }
+        String[] words = temp.split("EOF");
+        return words[0];
+    }
+
+    /**
+     * Read only one char. Summons fileReadFull method
+     *
+     * @param name to find the file
+     * @param pos position or index
+     * @return symbol at 'pos' position
+     * @throws IOException
+     */
+    public char fileReadAtPos(String name, int pos) throws IOException {
+
+        char[] signs = fileReadFull(name).toCharArray();
+
+        return signs[pos];
+    }
+
+    /**
+     * Repeats the addFile method except this time address isn't acquired
+     * automatically
+     *
+     * @param name to find the address
+     * @param text what to write
+     * @throws IOException
+     */
+    public void fileRewriteFull(String name, String text) throws IOException {
+
+        file.seek(fileMap.get(name));
+
+        fileMap.put(name, file.getFilePointer());
+        cleanBlock(fileMap.get(name));
+
+        writeToBlock(text + "EOF", fileMap.get(name));
+        pointer = pointer + 1312;//text.getBytes().length;
+    }
+
+    /**
+     * A lil hack. I read file's text, make an array out of it, change 1 symbol,
+     * and then rewrite all file.
+     *
+     * @param name to find file
+     * @param pos index
+     * @param value char to write
+     * @throws IOException
+     */
+    public void fileRewriteAtPos(String name, int pos, char value) throws IOException {
+
+        char[] signs = fileReadFull(name).toCharArray();
+        signs[pos] = value;
+        String s = new String(signs);
+        fileRewriteFull(name, s);
+    }
+
+    public boolean fileOpen(String name) {
+        if (fileMap.get(name) == 0) {
+            RealMachine.toConsole("The file named " + name + " doesn't exist");
+            return false;
+        }else{
+          RealMachine.toConsole("The file named " + name + " has been successfully opened");
+          return true;
+        }
+    }
+
+    public boolean fileClose(String name) {
+        if (fileMap.get(name) == 0) {
+            RealMachine.toConsole("The file named " + name + " doesn't exist");
+            return false;
+        }else{
+          RealMachine.toConsole("The file named " + name + " has been successfully closed");
+          return true;
+        }
+    }
 }

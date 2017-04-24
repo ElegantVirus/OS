@@ -20,6 +20,7 @@ public class Sf_Register {
         } else {
             sf = (byte) (sf & 127);
         }
+        os.Logger.writeToLog("sf is set to"+sf+'\n');
     }
 
     public boolean getOf() {
@@ -32,6 +33,7 @@ public class Sf_Register {
         } else {
             sf = (byte) (sf & 191);
         }
+        os.Logger.writeToLog("of is set to"+of+'\n');
     }
 
     public boolean getZf() {
@@ -44,6 +46,7 @@ public class Sf_Register {
         } else {
             sf = (byte) (sf & 255);
         }
+        os.Logger.writeToLog("zf is set to"+zf+'\n');
     }
 
     @Override

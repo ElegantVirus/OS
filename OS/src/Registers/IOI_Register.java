@@ -21,32 +21,86 @@ public class IOI_Register {
     public void setIoi(int a) {
         if (a == 1) {
             this.ioi = (byte) (ioi | ((byte) 1));
+            os.Logger.writeToLog("channel 1 has been set to busy"+'\n');
         }
         if (a == 2) {
             this.ioi = (byte) (ioi | ((byte) 2));
+            os.Logger.writeToLog("channel 2 has been set to busy"+'\n');
         }
         if (a == 3) {
             this.ioi = (byte) (ioi | ((byte) 4));
+            os.Logger.writeToLog("channel 3 has been set to busy "+'\n');
         }
 
     }
 
     /**
-     * If couple of channels are busy, it adds their values
+     * Logical and should clean a bit specified
+     *
+     * @param a
+     */
+    public void cleanIoi(int a) {
+        if (a == 1) {
+            this.ioi = (byte) (ioi & (1110));
+            os.Logger.writeToLog("channel 1 has been set to free"+'\n');
+        }
+        if (a == 2) {
+            this.ioi = (byte) (ioi & (1101));
+            os.Logger.writeToLog("channel 2 has been set to free"+'\n');
+        }
+        if (a == 3) {
+            this.ioi = (byte) (ioi & (1011));
+            os.Logger.writeToLog("channel 3 has been set to free "+'\n');
+        }
+
+    }
+
+    /**
+     * Setting to bits at once
+     *
+     * @param a
+     * @param b
      */
     public void setIoi(int a, int b) {
         setIoi(a);
         setIoi(b);
     }
 
+    /**
+     * Setting three bits at once
+     *
+     * @param a
+     * @param b
+     * @param c
+     */
     public void setIoi(int a, int b, int c) {
         setIoi(a);
         setIoi(b);
         setIoi(c);
     }
 
-    public void valyk() {
-        this.ioi = 0;
+    /**
+     * If u want to clean two bits - set two channels to 0
+     *
+     * @param a
+     * @param b
+     */
+    public void cleanIoi(int a, int b) {
+        cleanIoi(a);
+        cleanIoi(b);
+    }
+
+    /**
+     * If u want to clean 3 bits - set 3 channels to 0
+     *
+     * @param a
+     * @param b
+     * @param c
+     */
+    public void cleanIoi(int a, int b, int c) {
+        cleanIoi(a);
+        cleanIoi(b);
+        cleanIoi(c);
     }
 
     public int checkBitPos(int position) {

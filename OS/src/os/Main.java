@@ -47,6 +47,15 @@ public class Main extends javax.swing.JFrame {
 
             externalMemory.writeToDisk("BAD1", "DATA-10000200080REZULTATASYRA:00CODELX01AD02HALT");
             programs.add("BAD1");
+/*
+            externalMemory.addFile("file", "asdffghgasdfwasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssghjk");
+            externalMemory.addFile("fle", "asdffghgasdfwasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssghjk");
+
+            System.out.println(externalMemory.fileReadFull("file"));
+            System.out.println(externalMemory.fileReadAtPos("file",5));
+            externalMemory.fileRewriteAtPos("file",2,'X');
+            System.out.println(externalMemory.fileReadFull("file"));
+*/
 
         } catch (IOException e) {
             e.printStackTrace();

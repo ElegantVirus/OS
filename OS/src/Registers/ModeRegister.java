@@ -16,12 +16,14 @@ public class ModeRegister {
      * If 1, then supervisor mode
      */
     public static void setMode_1() {
+        os.Logger.writeToLog("mode set to supervisor"+'\n');
         ModeRegister.mode = 1;
     }
     /**
      * If 0, then user mode
      */
     public static void setMode_0() {
+        os.Logger.writeToLog("mode set to user"+'\n');
         ModeRegister.mode = 0;
     }
 

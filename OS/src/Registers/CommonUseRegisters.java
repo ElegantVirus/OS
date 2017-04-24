@@ -9,6 +9,7 @@ public class CommonUseRegisters {
     }
 
     public void setR(int r1) {
+        os.Logger.writeToLog("common use register has been set to "+r1+"\n");
         this.r = r1;
     }
 
