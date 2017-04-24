@@ -156,6 +156,7 @@ public class ExternalMemory {
         /**
          * TODO fix putting data to array, there are empty places now, something
          * fishy.
+         * FIXED
          */
         file.seek(pos);
         //   String all = readBlock(pos);

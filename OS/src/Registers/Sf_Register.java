@@ -49,7 +49,7 @@ public class Sf_Register {
     @Override
     public String toString() {
         String temp = String.format("%8s", Integer.toBinaryString(sf & 0xFF)).replace(' ', '0');
-        return temp;
+        return "Sf register :"+temp;
     }
 
     /*public void pr() {

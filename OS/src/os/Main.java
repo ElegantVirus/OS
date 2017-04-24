@@ -221,11 +221,13 @@ public class Main extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runButtonActionPerformed
+
         // TODO add your handling code here:
-        String name = programList.getSelectedValue();
-        RealMachine.vm.get(RealMachine.memory.getVmCount() - 1).work();
+      //  String name = programList.getSelectedValue();
+      int cnt = RealMachine.memory.getVmCount() - 1;
+        RealMachine.vm.get(cnt).work();
        // RealMachine.toConsole("Program successfully runned");
-        RealMachine.toConsole("r1: "+VirtualMachine.VirtualMachine.r1.getR());
+        RealMachine.toConsole("r1: "+RealMachine.vm.get(cnt).r1.getR());
     }//GEN-LAST:event_runButtonActionPerformed
 
     private void programListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_programListValueChanged
@@ -244,7 +246,9 @@ public class Main extends javax.swing.JFrame {
     private void runDbgButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runDbgButtonActionPerformed
         // TODO add your handling code here:
         String name = programList.getSelectedValue();
+        
         new Debug(name).setVisible(true);
+        
     }//GEN-LAST:event_runDbgButtonActionPerformed
 
     private void loadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadButtonActionPerformed

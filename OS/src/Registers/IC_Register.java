@@ -1,6 +1,9 @@
 package Registers;
 
 //instruction counter
+
+import java.util.logging.Logger;
+
 public class IC_Register {
     private static short ic;
 
@@ -21,4 +24,11 @@ public class IC_Register {
     public static void setIc(short ic1) {
         ic = ic1;
     }
+
+    @Override
+    public String toString() {
+        return "IC_Register:" + ic;
+    }
+    
+    
 }

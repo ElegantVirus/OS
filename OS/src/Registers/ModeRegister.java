@@ -25,4 +25,10 @@ public class ModeRegister {
         ModeRegister.mode = 0;
     }
 
+    @Override
+    public String toString() {
+        String temp = String.format("%8s", Integer.toBinaryString(mode & 0xFF)).replace(' ', '0');
+        return "ModeRegister : " + temp;
+    }
+
 }

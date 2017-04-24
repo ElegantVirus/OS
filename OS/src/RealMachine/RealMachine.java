@@ -15,18 +15,14 @@ import javax.swing.SwingConstants;
 import os.Main;
 
 public class RealMachine {
+    public static ModeRegister mode = new ModeRegister();
+    public static TI_Register ti = new TI_Register();
+    public static IOI_Register ioi = new IOI_Register();
+     // pi - program interrupt. 1 if memory protection,2 if operation code doesn't exist
+    // si - system interrupt. 1 if get data, 2 if put data and 3 if files, 4 if halt
 
-    CommonUseRegisters r1 = new CommonUseRegisters();
-    CommonUseRegisters r2 = new CommonUseRegisters();
-    Ch_Register ch1 = new Ch_Register();
-    Ch_Register ch2 = new Ch_Register();
-    Ch_Register ch3 = new Ch_Register();
-    Sf_Register sf = new Sf_Register();
-    ModeRegister mode = new ModeRegister();
-    TI_Register ti = new TI_Register();
-    IOI_Register ioi = new IOI_Register();
-    IntRegister pi = new IntRegister();
-    IntRegister si = new IntRegister();
+    public static IntRegister pi = new IntRegister();
+    public static IntRegister si = new IntRegister();
 
     public static List<VirtualMachine> vm;
 
@@ -41,6 +37,7 @@ public class RealMachine {
 
     public RealMachine() {
         //generating a singleton object
+        os.Logger.init("Session.txt");
         externalMemory = new ExternalMemory();
         ptr = UserMemory.getPtr();
         memory = new UserMemory();

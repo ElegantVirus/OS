@@ -1,63 +1,45 @@
 package Registers;
 
-
 public class IntRegister {
+
     /**
-     * si - system interrupt. 1 if get data, 2 if put data and 3 if halt
+     * pi - program interrupt. 1 if memory protection,2 if operation code
+     * doesn't exist si - system interrupt. 1 if get data, 2 if put data and 3
+     * if files, 4 if halt
      */
-    private short pi = 0,si = 0;
+    private short reg;
 
     public IntRegister() {
-        this.pi = 0;
-        this.si = 0;
+        this.reg = 0;
     }
 
-    public short getPi() {
-        return pi;
+    public void set_1() {
+        reg = 1;
     }
 
-    /**
-     * pi - program interrupt. 1 if memory protection
-     */
-    public void setPi_1() {
-        pi = 1;
+    public void set_2() {
+        reg = 2;
     }
 
-    /**
-     * pi - program interrupt. 2 if operation code doesn't exist
-     */
-    public void setPi_2() {
-        pi = 2;
+    public void set_3() {
+        reg = 3;
     }
 
-    public short getSi() {
-        return si;
+    public void set_4() {
+        reg = 4;
     }
 
-    /**
-     * si - system interrupt.1 if get data
-     */
-    public void setSi_1() {
-        si = 1;
+    public short getReg() {
+        return reg;
     }
 
-    /**
-     *  si - system interrupt.2 if put data
-     */
-    public void setSi_2() {
-        si = 2;
+    public void clearReg() {
+        reg = 0;
     }
 
-    /**
-     * si - system interrupt.3 if halt
-     */
-    public  void setSi_3() {
-        si = 3;
+    @Override
+    public String toString() {
+        return ": "+ reg;
     }
-    public  void clearSi(){
-        si = 0;
-    }
-    public  void clearPi(){
-        pi = 0;
-    }
+
 }

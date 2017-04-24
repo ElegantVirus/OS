@@ -12,4 +12,9 @@ public class CommonUseRegisters {
         this.r = r1;
     }
 
+    @Override
+    public String toString() {
+        return ": "+r ;
+    }
+
 }

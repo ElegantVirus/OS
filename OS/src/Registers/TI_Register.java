@@ -16,4 +16,10 @@ public class TI_Register {
     public static void setTi(short ti) {
         TI_Register.ti = ti;
     }
+
+    @Override
+    public String toString() {
+        return "TI_Register: " + (int)ti;
+    }
+    
 }
