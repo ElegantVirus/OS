@@ -7,16 +7,10 @@ package os;
 
 import RealMachine.RealMachine;
 import static RealMachine.RealMachine.externalMemory;
-import static RealMachine.RealMachine.vm;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 /**
  *
@@ -38,25 +32,27 @@ public class Main extends javax.swing.JFrame {
         try {
             //if you want it to work with no program previously loaded, u gotta erase memory first -> fill blocks with zeros
             externalMemory.eraseMemory();
-            String program = "DATA-10000200080REZULTATASYRA:00CODELR01AD02HALT";
+            String program = "DATA-10000200080REZULTATAS YRA:0CODELR01AD02HALT";
             externalMemory.writeToDisk("Pr10", program);
             programs.add("Pr10");
 
-            externalMemory.writeToDisk("Pr11", "DATA-10000000000REZULTATASYRA:00CODELR01AD02HALT");
+            externalMemory.writeToDisk("Pr11", "DATA-10000200080FIL1REZULTATAS YRA:0CODELR01AD02SB03SR04HALT");
             programs.add("Pr11");
 
             externalMemory.writeToDisk("BAD1", "DATA-10000200080REZULTATASYRA:00CODELX01AD02HALT");
             programs.add("BAD1");
-/*
-            externalMemory.addFile("file", "asdffghgasdfwasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssghjk");
-            externalMemory.addFile("fle", "asdffghgasdfwasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssghjk");
+            
+            externalMemory.writeToDisk("TRYF", "DATAfil100200080REZULTATAS YRA:0CODEFO01FW02FW03FR04FD00HALT");
+            programs.add("TRYF");
+            
+            externalMemory.addFile("fil1".getBytes(), "asdffghgasdfwasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssghjk");
+            externalMemory.addFile("fil2".getBytes(), "asdffghgasdfwasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssghjk");
 
-            System.out.println(externalMemory.fileReadFull("file"));
-            System.out.println(externalMemory.fileReadAtPos("file",5));
-            externalMemory.fileRewriteAtPos("file",2,'X');
-            System.out.println(externalMemory.fileReadFull("file"));
-*/
-
+        //    System.out.println(externalMemory.fileReadFull("file"));
+        //    System.out.println(externalMemory.fileReadAtPos("file",5));
+//            externalMemory.fileRewriteAtPos("fil1".getBytes(),2,"X".getBytes());
+       //     System.out.println(externalMemory.fileReadFull("file"));
+             
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -86,6 +82,7 @@ public class Main extends javax.swing.JFrame {
         console = new javax.swing.JTextArea();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        files = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(153, 153, 153));
@@ -152,6 +149,13 @@ public class Main extends javax.swing.JFrame {
 
         jLabel2.setText("Choose program");
 
+        files.setText("View files in hdd");
+        files.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                filesActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -164,11 +168,12 @@ public class Main extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(addButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(runButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(runDbgButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(loadButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(files, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(runButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(runDbgButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(loadButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButton1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(0, 21, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -196,7 +201,9 @@ public class Main extends javax.swing.JFrame {
                         .addComponent(runDbgButton)
                         .addGap(18, 18, 18)
                         .addComponent(jButton1)
-                        .addGap(50, 50, 50)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(files, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(16, 16, 16)
                         .addComponent(addButton))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -221,7 +228,7 @@ public class Main extends javax.swing.JFrame {
 
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
         // TODO add your handling code here:
-   //     new ProgramIn().setVisible(true);
+        //     new ProgramIn().setVisible(true);
     }//GEN-LAST:event_addButtonActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -232,11 +239,11 @@ public class Main extends javax.swing.JFrame {
     private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runButtonActionPerformed
 
         // TODO add your handling code here:
-      //  String name = programList.getSelectedValue();
-      int cnt = RealMachine.memory.getVmCount() - 1;
+        //  String name = programList.getSelectedValue();
+        int cnt = RealMachine.memory.getVmCount() - 1;
         RealMachine.vm.get(cnt).work();
-       // RealMachine.toConsole("Program successfully runned");
-        RealMachine.toConsole("r1: "+RealMachine.vm.get(cnt).r1.getR());
+        // RealMachine.toConsole("Program successfully runned");
+        RealMachine.toConsole("r1: " + RealMachine.vm.get(cnt).r1.getR());
     }//GEN-LAST:event_runButtonActionPerformed
 
     private void programListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_programListValueChanged
@@ -255,9 +262,9 @@ public class Main extends javax.swing.JFrame {
     private void runDbgButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runDbgButtonActionPerformed
         // TODO add your handling code here:
         String name = programList.getSelectedValue();
-        
+
         new Debug(name).setVisible(true);
-        
+
     }//GEN-LAST:event_runDbgButtonActionPerformed
 
     private void loadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadButtonActionPerformed
@@ -265,6 +272,17 @@ public class Main extends javax.swing.JFrame {
         String name = programList.getSelectedValue();
         rm.addProcess(name);
     }//GEN-LAST:event_loadButtonActionPerformed
+
+    private void filesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filesActionPerformed
+        // TODO add your handling code here:
+        String[] str = externalMemory.getAllFiles();
+        System.out.println(str.length);
+        text.setText(null);
+        
+        for (int i = 0; i < str.length; i++) {
+            text.append(str[i]+'\n');
+        }
+    }//GEN-LAST:event_filesActionPerformed
 
     /**
      * @param args the command line arguments
@@ -304,6 +322,7 @@ public class Main extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addButton;
     public static javax.swing.JTextArea console;
+    private javax.swing.JButton files;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

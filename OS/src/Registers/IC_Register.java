@@ -2,8 +2,6 @@ package Registers;
 
 //instruction counter
 
-import java.util.logging.Logger;
-
 public class IC_Register {
     private static short ic;
 

@@ -151,6 +151,9 @@ public class UserMemory {
 
                         case "FR": //file read papildomo patikrinimo reikia ten kur komentarai
                         case "FW": //file write
+                        case "FD": //file read papildomo patikrinimo reikia ten kur komentarai
+                        case "FO": //file read papildomo patikrinimo reikia ten kur komentarai
+                        case "FC": //file read papildomo patikrinimo reikia ten kur komentarai
 
                         case "GD": //get data
 
