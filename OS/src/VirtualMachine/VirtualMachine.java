@@ -503,7 +503,8 @@ public class VirtualMachine {
 		//temp = String.copyValueOf(r1.getRChar());///////////////////////////////////////////////////////////////////
                 byte[] temp = r1.getR();
             try {
-                RealMachine.RealMachine.externalMemory.fileReadAtPos(temp,(int)address);
+                RealMachine.RealMachine.externalMemory.fileReadAtPos(temp);
+                RealMachine.RealMachine.pi.set_3();
             } catch (IOException ex) {
                 RealMachine.RealMachine.pi.set_3();
                 java.util.logging.Logger.getLogger(VirtualMachine.class.getName()).log(Level.SEVERE, null, ex);
@@ -523,7 +524,8 @@ public class VirtualMachine {
                 
             try {
                
-                RealMachine.RealMachine.externalMemory.fileRewriteAtPos(temp, r2.getRInt(),t);
+                RealMachine.RealMachine.externalMemory.fileRewriteAtPos(temp,t);
+                RealMachine.RealMachine.pi.set_3();
             } catch (IOException ex) {
                 RealMachine.RealMachine.pi.set_3();
                 java.util.logging.Logger.getLogger(VirtualMachine.class.getName()).log(Level.SEVERE, null, ex);

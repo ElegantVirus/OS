@@ -20,7 +20,7 @@ public class IC_Register {
     }
 
     public static void setIc(short ic1) {
-        os.Logger.writeToLog("is register has been set to "+ic1+"\n");
+        os.Logger.writeToLog("ic register has been set to "+ic1+"\n");
         ic = ic1;
     }
 

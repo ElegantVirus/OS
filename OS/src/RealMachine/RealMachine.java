@@ -9,9 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
 import os.Main;
 
 public class RealMachine {
@@ -21,8 +18,8 @@ public class RealMachine {
      // pi - program interrupt. 1 if memory protection,2 if operation code doesn't exist
     // si - system interrupt. 1 if get data, 2 if put data and 3 if files, 4 if halt
 
-    public static IntRegister pi = new IntRegister();
-    public static IntRegister si = new IntRegister();
+    public static IntRegister pi;
+    public static IntRegister si;
 
     public static List<VirtualMachine> vm;
 
@@ -38,10 +35,12 @@ public class RealMachine {
     public RealMachine() {
         //generating a singleton object
         os.Logger.init("Session.txt");
+        pi = new IntRegister();
+        si = new IntRegister();
         externalMemory = new ExternalMemory();
         ptr = UserMemory.getPtr();
         memory = new UserMemory();
-        vm = new ArrayList<VirtualMachine>();
+        vm = new ArrayList<>();
         /*
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {

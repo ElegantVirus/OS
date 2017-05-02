@@ -67,7 +67,8 @@ public class CommonUseRegisters {
 
     @Override
     public String toString() {
-        return ": " + getRInt();
+        String temp = new String(getR());
+        return ": " + temp;
     }
 
 }

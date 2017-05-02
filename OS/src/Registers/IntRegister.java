@@ -12,7 +12,10 @@ public class IntRegister {
     public IntRegister() {
         this.reg = 0;
     }
-
+    public void set_0() {
+        os.Logger.writeToLog("INTERRUPT UNTRIGGERED - 0"+'\n');
+        reg = 0;
+    }
     public void set_1() {
         os.Logger.writeToLog("INTERRUPT TRIGGERED - 1"+'\n');
         reg = 1;

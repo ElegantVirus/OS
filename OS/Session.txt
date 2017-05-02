@@ -1,52 +1,31 @@
 mode set to user
 
-is register has been set to 1
+ic register has been set to 1
 
 FO1 
-is register has been set to 2
+INTERRUPT TRIGGERED - 3
+
+ic register has been set to 2
 
 FW2 
-is register has been set to 3
+INTERRUPT TRIGGERED - 3
+
+ic register has been set to 3
 
 FW3 
-is register has been set to 4
+INTERRUPT TRIGGERED - 3
+
+ic register has been set to 4
 
 FR4 
-is register has been set to 5
+INTERRUPT UNTRIGGERED - 0
+
+ic register has been set to 5
+
+FC 
+ic register has been set to 6
 
 FD 
-is register has been set to 6
+ic register has been set to 7
 
 HALT 
-mode set to user
-
-is register has been set to 1
-
-FO1 
-is register has been set to 2
-
-FW2 
-is register has been set to 3
-
-FW3 
-is register has been set to 4
-
-FR4 
-is register has been set to 5
-
-FD 
-is register has been set to 6
-
-HALT 
-is register has been set to 7
-
-FO1 
-is register has been set to 8
-
-FW2 
-is register has been set to 9
-
-FW3 
-is register has been set to 10
-
-FR4 

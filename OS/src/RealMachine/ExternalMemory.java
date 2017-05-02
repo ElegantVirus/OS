@@ -9,7 +9,7 @@ public final class ExternalMemory {
 
     public RandomAccessFile file;
     byte[] word;
-    public HashMap<String, Long> fileMap = new HashMap<>();
+    public HashMap<String, Long[]> fileMap = new HashMap<>();
     int pointer = 21105;
 
     public ExternalMemory() {
@@ -205,17 +205,19 @@ public final class ExternalMemory {
      * @param text later converted to bytes
      * @throws IOException
      */
-    public void addFile(byte[] name, String text) throws IOException {
+    public void addFile(byte[] name) throws IOException {
 
         file.seek(pointer);
         //rašome failą toje vietoje,kur esame (prie pabaigos)  
         //  file.writeBytes("\r\n");
         String n = new String(name);
-        
-        fileMap.put(n, file.getFilePointer());
-        cleanBlock(fileMap.get(n));
+        Long addr[] = new Long[3];
+        addr[0] = addr[1] = addr[2] = file.getFilePointer();
 
-        writeToBlock(text + "EOF", fileMap.get(n));
+        fileMap.put(n, addr);
+        cleanBlock(fileMap.get(n)[0]);
+
+        //  writeToBlock(text + "EOF", fileMap.get(n)[0]);
         pointer = pointer + 1312;//text.getBytes().length;
     }
 
@@ -246,7 +248,7 @@ public final class ExternalMemory {
      */
     public void deleteFile(byte[] name) throws IOException {
         String n = new String(name);
-        cleanBlock(fileMap.get(n));
+        cleanBlock(fileMap.get(n)[0]);
     }
 
     /**
@@ -260,11 +262,11 @@ public final class ExternalMemory {
 
         String temp = "";
         String n = new String(name);
-        
+
         for (int i = 0; i < 16; i++) {
             for (int j = 0; j < 16; j++) {
                 for (int y = 0; y < 4; y++) {
-                    temp = temp + (char) (fillArray(fileMap.get(n))[i][j][y]);
+                    temp = temp + (char) (fillArray(fileMap.get(n)[0])[i][j][y]);
                 }
             }
         }
@@ -276,19 +278,28 @@ public final class ExternalMemory {
      * FIXED - reads 4 bytes in given address
      *
      * @param name to find the file
-     * @param pos position or index
      * @return symbol at 'pos' position
      * @throws IOException
      */
-    public byte[] fileReadAtPos(byte[] name, int pos) throws IOException {
-        //String n = new String(name);
-        byte[] signs = fileReadFull(name).getBytes();
+    public byte[] fileReadAtPos(byte[] name) throws IOException {
+
+        /*    byte[] signs = fileReadFull(name).getBytes();
         byte[] retval = new byte[4];
         retval[0] = signs[pos];
         retval[1] = signs[pos + 1];
         retval[2] = signs[pos + 2];
         retval[3] = signs[pos + 3];
-
+         */
+        String n = new String(name);
+        file.seek(fileMap.get(n)[2]);
+        byte[] retval = new byte[4];
+        //file.read(retval, 0, 5);
+        retval[0] = file.readByte();
+        retval[1] = file.readByte();
+        retval[2] = file.readByte();
+        retval[3] = file.readByte();
+        file.readByte();
+        fileMap.get(n)[2] = file.getFilePointer();
         return retval;
     }
 
@@ -302,11 +313,13 @@ public final class ExternalMemory {
      */
     public void fileRewriteFull(byte[] name, String text) throws IOException {
         String n = new String(name);
-        file.seek(fileMap.get(n));
-        fileMap.put(n, file.getFilePointer());
-        cleanBlock(fileMap.get(n));
+        file.seek(fileMap.get(n)[0]);
+        Long addr[] = new Long[2];
+        addr[0] = addr[1] = addr[2] = file.getFilePointer();
+        fileMap.put(n, addr);
+        cleanBlock(fileMap.get(n)[0]);
 
-        writeToBlock(text + "EOF", fileMap.get(n));
+        writeToBlock(text + "EOF", fileMap.get(n)[0]);
         pointer = pointer + 1312;//text.getBytes().length;
     }
 
@@ -314,39 +327,49 @@ public final class ExternalMemory {
      * Changes 4 bytes at given address
      *
      * @param name to find file
-     * @param pos index
      * @param value char to write
      * @throws IOException
      */
-    public void fileRewriteAtPos(byte[] name, int pos, byte[] value) throws IOException {
-
+    public void fileRewriteAtPos(byte[] name, byte[] value) throws IOException {
+        /*
         byte[] signs = fileReadFull(name).getBytes();
         signs[pos] = value[0];
-        signs[pos+1] = value[1];
-        signs[pos+2] = value[2];
-        signs[pos+3] = value[3];
+        signs[pos + 1] = value[1];
+        signs[pos + 2] = value[2];
+        signs[pos + 3] = value[3];
 
+        System.out.println(new String(value));
         String s = new String(signs);
-        fileRewriteFull(name, s);
+        System.out.println(s);
+        fileRewriteFull(name, s);*/
+        String n = new String(name);
+        file.seek(fileMap.get(n)[1]);
+        file.write(value);
+        file.write(' ');
+        fileMap.get(n)[1] = file.getFilePointer();
     }
 
     public boolean fileOpen(byte[] name) {
         String n = new String(name);
-        if (fileMap.get(n) == 0) {
+        if (fileMap.get(n)[0] == 0) {
             RealMachine.toConsole("The file named " + n + " doesn't exist");
             return false;
         } else {
+            fileMap.get(n)[1] = fileMap.get(n)[1] = fileMap.get(n)[0];
             RealMachine.toConsole("The file named " + n + " has been successfully opened");
             return true;
         }
+
     }
 
     public boolean fileClose(byte[] name) {
         String n = new String(name);
-        if (fileMap.get(n) == 0) {
+        if (fileMap.get(n)[0] == 0) {
             RealMachine.toConsole("The file named " + n + " doesn't exist");
             return false;
         } else {
+            fileMap.get(n)[1] = fileMap.get(n)[1] = fileMap.get(n)[0];
+            RealMachine.pi.set_0();
             RealMachine.toConsole("The file named " + n + " has been successfully closed");
             return true;
         }
@@ -356,7 +379,7 @@ public final class ExternalMemory {
         String[] keys = new String[fileMap.size()];
 
         int index = 0;
-        for (HashMap.Entry<String, Long> mapEntry : fileMap.entrySet()) {
+        for (HashMap.Entry<String, Long[]> mapEntry : fileMap.entrySet()) {
             keys[index] = mapEntry.getKey();
 
             System.out.println(mapEntry.getKey());

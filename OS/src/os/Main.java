@@ -42,11 +42,11 @@ public class Main extends javax.swing.JFrame {
             externalMemory.writeToDisk("BAD1", "DATA-10000200080REZULTATASYRA:00CODELX01AD02HALT");
             programs.add("BAD1");
             
-            externalMemory.writeToDisk("TRYF", "DATAfil100200080REZULTATAS YRA:0CODEFO01FW02FW03FR04FD00HALT");
+            externalMemory.writeToDisk("TRYF", "DATAfil100200080REZULTATAS YRA:0CODEFO01FW02FW03FR04FC01FD00HALT");
             programs.add("TRYF");
             
-            externalMemory.addFile("fil1".getBytes(), "asdffghgasdfwasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssghjk");
-            externalMemory.addFile("fil2".getBytes(), "asdffghgasdfwasssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssghjk");
+            externalMemory.addFile("fil1".getBytes());
+            externalMemory.addFile("fil2".getBytes());
 
         //    System.out.println(externalMemory.fileReadFull("file"));
         //    System.out.println(externalMemory.fileReadAtPos("file",5));
@@ -243,7 +243,7 @@ public class Main extends javax.swing.JFrame {
         int cnt = RealMachine.memory.getVmCount() - 1;
         RealMachine.vm.get(cnt).work();
         // RealMachine.toConsole("Program successfully runned");
-        RealMachine.toConsole("r1: " + RealMachine.vm.get(cnt).r1.getR());
+        RealMachine.toConsole("r1: " + RealMachine.vm.get(cnt).r1.toString());
     }//GEN-LAST:event_runButtonActionPerformed
 
     private void programListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_programListValueChanged
