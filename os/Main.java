@@ -1,37 +1,55 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+/**
+*Operaciniu sistemu projektas
+*Autores :
+*Evelina Bujyte
+*Anastasija Kiseliova
+*Matematine informatika
+*3 kursas
+*2017
+**/
 package os;
 
+import RealMachine.Loader;
+import RealMachine.Planner;
+import RealMachine.ProgramChooser;
 import RealMachine.RealMachine;
 import static RealMachine.RealMachine.externalMemory;
+import RealMachine.Resources;
+import RealMachine.Start_Stop;
+import RealMachine.UserMemory;
 import java.io.IOException;
+import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JList;
+import javax.swing.JTextField;
 
-/**
- *
- * @author ElDiablo
- */
+
 public class Main extends javax.swing.JFrame {
 
     Vector<String> programs;
     RealMachine rm = new RealMachine();
+    static String row = " ";
+    static int pushed = 0;
+    Vector<String> loadedEl;
 
     /**
      * Creates new form Main
      */
     public Main() {
-        initComponents();
 
+        initComponents();
+        in.setVisible(false);
         programs = new Vector<>();
 
         try {
-            //if you want it to work with no program previously loaded, u gotta erase memory first -> fill blocks with zeros
-            externalMemory.eraseMemory();
+			//pries ikeliant atminti butina suformatuoti ja - uzpildyti nuliais
+            externalMemory.eraseMemory();     
+            
+            externalMemory.writeToDisk("BAD1", "DATA-10000200080REZULTATASYRA:00CODELX01AD02HALT");
+            programs.add("BAD1");
+            
             String program = "DATA-10000200080REZULTATAS YRA:0CODELR01AD02HALT";
             externalMemory.writeToDisk("Pr10", program);
             programs.add("Pr10");
@@ -39,25 +57,36 @@ public class Main extends javax.swing.JFrame {
             externalMemory.writeToDisk("Pr11", "DATA-10000200080FIL1REZULTATAS YRA:0CODELR01AD02SB03SR04HALT");
             programs.add("Pr11");
 
-            externalMemory.writeToDisk("BAD1", "DATA-10000200080REZULTATASYRA:00CODELX01AD02HALT");
-            programs.add("BAD1");
-            
+
+
             externalMemory.writeToDisk("TRYF", "DATAfil100200080REZULTATAS YRA:0CODEFO01FW02FW03FR04FC01FD00HALT");
             programs.add("TRYF");
-            
+
+            externalMemory.writeToDisk("GDPD", "DATACODEGD15PD15LR15HALT");
+            programs.add("GDPD");
+
+            externalMemory.writeToDisk("JMP0", "DATA04501111CODELR01CR01JE87RR00RR00RR00LR02HALT");
+            programs.add("JMP0");
+
+            externalMemory.writeToDisk("XXXX", "DATA00010000CODELR01CR02JN81HALT");
+            programs.add("XXXX");
+            //   externalMemory.writeToDisk("TRY0", "DATACODERR00RR00HALT");
+            //    programs.add("TRY0");
+
             externalMemory.addFile("fil1".getBytes());
             externalMemory.addFile("fil2".getBytes());
 
-        //    System.out.println(externalMemory.fileReadFull("file"));
-        //    System.out.println(externalMemory.fileReadAtPos("file",5));
-//            externalMemory.fileRewriteAtPos("fil1".getBytes(),2,"X".getBytes());
-       //     System.out.println(externalMemory.fileReadFull("file"));
-             
+            runDbgButton.setVisible(false);
+			
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         programList.setListData(programs);
+
+        Start_Stop.ss.run(0);
+
+        loadedEl = new Vector<>();
     }
 
     /**
@@ -68,6 +97,7 @@ public class Main extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
         addButton = new javax.swing.JButton();
         runButton = new javax.swing.JButton();
@@ -83,6 +113,11 @@ public class Main extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         files = new javax.swing.JButton();
+        in = new javax.swing.JButton();
+        inputText1 = new javax.swing.JTextField();
+        jLabel3 = new javax.swing.JLabel();
+        machinesLoaded = new javax.swing.JTextField();
+        OsEnd = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setBackground(new java.awt.Color(153, 153, 153));
@@ -102,7 +137,9 @@ public class Main extends javax.swing.JFrame {
             }
         });
 
-        programList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        org.jdesktop.beansbinding.Binding binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, console, org.jdesktop.beansbinding.ObjectProperty.create(), programList, org.jdesktop.beansbinding.BeanProperty.create("selectedElement"));
+        bindingGroup.addBinding(binding);
+
         programList.addContainerListener(new java.awt.event.ContainerAdapter() {
             public void componentAdded(java.awt.event.ContainerEvent evt) {
                 programListComponentAdded(evt);
@@ -156,67 +193,112 @@ public class Main extends javax.swing.JFrame {
             }
         });
 
+        in.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
+        in.setText("ENTER");
+        in.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                inActionPerformed(evt);
+            }
+        });
+
+        inputText1.setFont(new java.awt.Font("Tahoma", 2, 11)); // NOI18N
+        inputText1.setText("Input text");
+        inputText1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                inputText1ActionPerformed(evt);
+            }
+        });
+
+        jLabel3.setText("Machines loaded");
+
+        OsEnd.setText("END");
+        OsEnd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                OsEndActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane2)
-                .addContainerGap())
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(addButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(files, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(runButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(runDbgButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(loadButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(0, 21, Short.MAX_VALUE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 261, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(65, 65, 65))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(files, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(runButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(runDbgButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(loadButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jButton1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(addButton, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(inputText1, javax.swing.GroupLayout.PREFERRED_SIZE, 144, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(in, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(42, 42, 42)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(machinesLoaded, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE))))
                         .addGap(18, 18, 18)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 325, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 261, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 556, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 852, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(OsEnd, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(38, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel2))
+                .addGap(14, 14, 14)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(28, 28, 28)
-                        .addComponent(loadButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(runButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(runDbgButton)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(files, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(16, 16, 16)
-                        .addComponent(addButton))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel2))
-                        .addGap(7, 7, 7)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 233, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(loadButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(runButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(runDbgButton)
+                                .addGap(18, 18, 18)
+                                .addComponent(jButton1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(files, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(16, 16, 16)
+                                .addComponent(addButton))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(machinesLoaded, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(inputText1, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(in)
+                            .addComponent(jLabel3)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 347, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(47, 47, 47)
+                        .addComponent(OsEnd, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(239, 239, 239))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 298, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(49, 49, 49))))
         );
+
+        bindingGroup.bind();
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -238,39 +320,69 @@ public class Main extends javax.swing.JFrame {
 
     private void runButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runButtonActionPerformed
 
-        // TODO add your handling code here:
+        for (int i = 0; i < UserMemory.getVmCount(); i++) {
+            Resources.addDynamic("Run program");
+        }
+        Planner.lineUp();
         //  String name = programList.getSelectedValue();
-        int cnt = RealMachine.memory.getVmCount() - 1;
-        RealMachine.vm.get(cnt).work();
+        //   List list = programList.getSelectedValuesList();
+        //   int cnt = RealMachine.memory.getVmCount() - 1;
+        //  RealMachine.vm.get(cnt).work();
         // RealMachine.toConsole("Program successfully runned");
-        RealMachine.toConsole("r1: " + RealMachine.vm.get(cnt).r1.getR());
+        //  RealMachine.toConsole("r1: " + RealMachine.vm.get(cnt).r1.toString());
     }//GEN-LAST:event_runButtonActionPerformed
+    public static void setVi() {
+        in.setVisible(true);
+    }
 
+    public static String getText() {
+
+        while (getPush() == 0) {
+            return "0000";
+        }
+        return row;
+    }
+
+    public static void stopVi() {
+        in.setVisible(false);
+    }
     private void programListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_programListValueChanged
 
+        // TODO add your handling code here:
+        List list = programList.getSelectedValuesList();
+
+        String name = (String) list.get(0);
+        String pr = null;
         try {
-            // TODO add your handling code here:
-            String name = programList.getSelectedValue();
-            String pr = RealMachine.externalMemory.readBlock(RealMachine.externalMemory.searchInHDD(name));
-            text.setText(null);
-            text.append(pr);
+            pr = RealMachine.externalMemory.readBlock(RealMachine.externalMemory.searchInHDD(name));
         } catch (IOException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
+        text.setText(null);
+        text.append(pr);
+
     }//GEN-LAST:event_programListValueChanged
 
     private void runDbgButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runDbgButtonActionPerformed
         // TODO add your handling code here:
-        String name = programList.getSelectedValue();
+        //  String name = programList.getSelectedValue();
 
-        new Debug(name).setVisible(true);
+        //  new Debug(name).setVisible(true);
 
     }//GEN-LAST:event_runDbgButtonActionPerformed
 
     private void loadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadButtonActionPerformed
-        // TODO add your handling code here:
-        String name = programList.getSelectedValue();
-        rm.addProcess(name);
+
+        List list = programList.getSelectedValuesList();
+        for (int i = 0; i < list.size(); i++) {
+            String name = list.get(i).toString();
+            ProgramChooser.setName(name);
+            System.out.println(name);
+            Resources.addDynamic("From interface");
+            Planner.lineUp();
+        }
+        machinesLoaded.setText("" + UserMemory.getVmCount());
+
     }//GEN-LAST:event_loadButtonActionPerformed
 
     private void filesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_filesActionPerformed
@@ -278,11 +390,30 @@ public class Main extends javax.swing.JFrame {
         String[] str = externalMemory.getAllFiles();
         System.out.println(str.length);
         text.setText(null);
-        
+
         for (int i = 0; i < str.length; i++) {
-            text.append(str[i]+'\n');
+            text.append(str[i] + '\n');
         }
     }//GEN-LAST:event_filesActionPerformed
+    public static int getPush() {
+        return pushed;
+    }
+    private void inActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inActionPerformed
+        // TODO add your handling code here:
+        Resources.setStatic("1chan", true);
+        this.pushed = 1;
+        row = inputText1.getText();
+    }//GEN-LAST:event_inActionPerformed
+
+    private void inputText1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputText1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_inputText1ActionPerformed
+
+    private void OsEndActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OsEndActionPerformed
+        // TODO add your handling code here:
+        Resources.addDynamic("OS end");
+        Planner.lineUp();
+    }//GEN-LAST:event_OsEndActionPerformed
 
     /**
      * @param args the command line arguments
@@ -320,19 +451,25 @@ public class Main extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton OsEnd;
     private javax.swing.JButton addButton;
     public static javax.swing.JTextArea console;
     private javax.swing.JButton files;
+    public static javax.swing.JButton in;
+    public static javax.swing.JTextField inputText1;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JButton loadButton;
+    public static javax.swing.JTextField machinesLoaded;
     public javax.swing.JList<String> programList;
     private javax.swing.JButton runButton;
     private javax.swing.JButton runDbgButton;
     private javax.swing.JTextArea text;
+    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 }

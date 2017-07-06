@@ -1,7 +1,18 @@
+/**
+*Operaciniu sistemu projektas
+*Autores :
+*Evelina Bujyte
+*Anastasija Kiseliova
+*Matematine informatika
+*3 kursas
+*2017
+**/
 package VirtualMachine;
 
 import Registers.*;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import os.Logger;
@@ -13,20 +24,32 @@ public class VirtualMachine {
 	public CommonUseRegisters r1 = new CommonUseRegisters();
 	public CommonUseRegisters r2 = new CommonUseRegisters();
 	PageTable pageTable;
+	int index;
+	//id is used to identificate which vm it is
 
 	ModeRegister mode = new ModeRegister();
-	TI_Register ti = new TI_Register();
 	int ptr;
+	private short lastAddress;
 
-	public VirtualMachine(ModeRegister mode, TI_Register ti, int ptr) {
+	public short getLastAddress() {
+		return lastAddress;
+	}
+
+	public VirtualMachine(ModeRegister mode, int ptr, int id) {
 
 		this.mode = mode;
 		this.ptr = ptr;
-		this.ti = ti;
 		ModeRegister.setMode_0();
 		this.pageTable = new PageTable(ptr);
 		this.pageTable.increaseCs();
+		this.ic.setIc((short) 129);
+		this.lastAddress = 240;
+		this.index = id;
 
+	}
+
+	public int getId() {
+		return index;
 	}
 
 	private VirtualMachine() {
@@ -62,16 +85,13 @@ public class VirtualMachine {
 		char[] command = new char[4];
 
 		while (breaker) {
-			command = pageTable.getCharArrayAtAddress(pageTable.getCs());
+			command = pageTable.getCharArrayAtAddress(ic.getIc());
 
 			String cmd = String.valueOf(command);
-			System.out.println(cmd + " " + pageTable.getCs());
+			System.out.println(cmd + " " + ic.getIc());
 			if ((cmd.charAt(0) == 'H') && (cmd.charAt(1) == 'A')) {//HALT
-
-				/**
-				 * todo halt stuff
-				 */
 				halt();
+				// RealMachine.Test.test(getId());
 				breaker = false;
 				break;
 			} else {
@@ -85,10 +105,10 @@ public class VirtualMachine {
 
 		String[] ar = new String[2];
 
-		String command = String.valueOf(pageTable.getCharArrayAtAddress(pageTable.getCs()));
+		String command = String.valueOf(pageTable.getCharArrayAtAddress(ic.getIc()));
 		interpretACommand(command);
 
-		String nextCommand = String.valueOf(pageTable.getCharArrayAtAddress(pageTable.getCs()));
+		String nextCommand = String.valueOf(pageTable.getCharArrayAtAddress(ic.getIc()));
 
 		ar[0] = command;
 		ar[1] = nextCommand;
@@ -101,11 +121,12 @@ public class VirtualMachine {
 
 		if ((command.charAt(0) == 'H') && (command.charAt(1) == 'A')) {//HALT
 			halt();
+			//RealMachine.Test.test(getId());
 		} else {
 			int x1 = charToInt(command.charAt(2));
 			int x2 = charToInt(command.charAt(3));
 			short address = (short) (x1 * 16 + x2);
-			String tempCommand = new StringBuilder().append(command.charAt(0)).append(command.charAt(1)).toString();//should simplify it 😀
+			String tempCommand = new StringBuilder().append(command.charAt(0)).append(command.charAt(1)).toString();//should simplify it ðŸ˜€
 			switch (tempCommand) {
 				case "LR": {//load register
 					lr(address);
@@ -159,8 +180,8 @@ public class VirtualMachine {
 					ju(address);
 					break;
 				}
-				case "JM": {//jump if more
-					jm(address);
+				case "JG": {//jump if more
+					jg(address);
 					break;
 				}
 				case "JE": {//jump if equal
@@ -171,14 +192,10 @@ public class VirtualMachine {
 					jl(address);
 					break;
 				}
-				/*case "SM": {//save to memory
-					sm(x1, x2);
+				case "JN": {//jump if not equal
+					jn(address);
 					break;
 				}
-				case "LM": {//load from memory
-					lm(x1, x2);
-					break;
-				}*/
 				case "FR": {//file read
 					fr(address);
 					break;
@@ -216,6 +233,7 @@ public class VirtualMachine {
 					//   System.out.println("command not found");
 					break;
 			}
+			//  RealMachine.Test.test(getId());
 		}
 	}
 
@@ -225,17 +243,47 @@ public class VirtualMachine {
 		return temp;
 	}
 
-	private int getIntFromAddress(short address) {//<-----------------------------------------------------------NEEDS EDIT
+	private int getIntFromAddress(short address) {
 		char[] digits = pageTable.getCharArrayAtAddress(address);
 		int res = Integer.parseInt(new String(digits));
 		RealMachine.RealMachine.toConsole("get int from memory : " + res);
 		//    System.out.println("get int from array : " + res);
 		return res;
 	}
+	public byte [] getFromAddress(short address) 
+	{
+		return pageTable.getAtAdress(address);
+	}
 
-	private void putToAddress(byte[] bytes, short address) {//<--------------------------------------------------NEEDS EDIT
+	public void putToAddress(byte[] bytes, short address) {
 		int value = 1234;
 		char[] chars = String.valueOf(value).toCharArray();
+		pageTable.setBytesAtAddress(address, bytes);
+
+	}
+
+	private void putToAddress(String str, short address) {
+		if (str != null) {
+			if (str.equals("")) {
+				str = "    ";
+
+			} else if (str.length() == 1) {
+				str += "   ";
+
+			} else if (str.length() == 2) {
+				str += "  ";
+
+			} else if (str.length() == 3) {
+				str += "  ";
+
+			} else {
+				str = str.substring(0, 4);
+			}
+		} else {
+			str = "    ";
+		}
+		int value = 1234;
+		byte[] bytes = str.getBytes();
 		pageTable.setBytesAtAddress(address, bytes);
 
 	}
@@ -246,53 +294,60 @@ public class VirtualMachine {
 		return bb.array();
 	}
 
-	private void putIntToAddress(int number, short address) {//<--------------------------------------------------NEEDS EDIT
+	private void putToAddress(int number, short address) {
 		byte[] temp = new byte[4];
 		temp = intToBytes(number);
 		putToAddress(temp, address);
 	}
 
+	/**
+	 ******************************************************************************************VIRTUAL
+	 * MACHINE COMMANDS
+	 */
 	//commands
-	//LR – Load Register – iš atminties baito x1x2 persiunčia į registrą R1:
+	//LR â€“ Load Register â€“ iÅ¡ atminties baito x1x2 persiunÄia Ä¯ registrÄ… R1:
 	//LR x1x2  => R1:=[x1x2];
 	private void lr(short address) {
 		r1.setR(getIntFromAddress(address));
 
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
-		pageTable.increaseCs();
+		short a = ic.getIc();
+		ic.setIc(++a);
+		//pageTable.increaseCs();
 		Logger.writeToLog("LR" + address + " ");
+		TI_Register.decreaseTi();
 	}
 
-	//SR – Save Register – iš registro R1 persiunčia į atminties baitą x1x2:
+	//SR â€“ Save Register â€“ iÅ¡ registro R1 persiunÄia Ä¯ atminties baitÄ… x1x2:
 	//SR x1x2  => [x1x2]:=R1;
 	private void sr(short address) {
 
-		putIntToAddress(r1.getRInt(), address);
+		putToAddress(r1.getRInt(), address);
 
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
-		pageTable.increaseCs();
+		short a = ic.getIc();
+		ic.setIc(++a);
+		//pageTable.increaseCs();
 		Logger.writeToLog("SR" + address + " ");
+		TI_Register.decreaseTi();
+
 	}
 
-	//RR – sukeičia registro R1 ir R2 reikšmes:
-	//RR 😊 R:=R1+R2, R2=R1-R2, R1=R1-R2;
+	//RR â€“ sukeiÄia registro R1 ir R2 reikÅ¡mes:
+	//RR ðŸ˜Š R:=R1+R2, R2=R1-R2, R1=R1-R2;
 	private void rr() {
 		int temp;
 		temp = r1.getRInt();
 		r1.setR(r2.getR());
 		r2.setR(temp);
 
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
-		pageTable.increaseCs();
+		short a = ic.getIc();
+		ic.setIc(++a);
+		//pageTable.increaseCs();
 		Logger.writeToLog("RR" + " ");
+		TI_Register.decreaseTi();
 	}
-	//TO DO: aritmetinese sf sutvarkysiu sian
 
 	//ARITMETINES
-	//AD – suma – prie esamos registro R1 reikšmės prideda reikšmę esančią x1x2 atminties baite, rezultatas
+	//AD â€“ suma â€“ prie esamos registro R1 reikÅ¡mÄ—s prideda reikÅ¡mÄ™ esanÄiÄ… x1x2 atminties baite, rezultatas
 	//patalpinamas registre R1:      AD x1x2 => R1:=R1+[x1x2];
 	private void ad(short address) {
 		int temp = getIntFromAddress(address);
@@ -304,13 +359,14 @@ public class VirtualMachine {
 			sf.setZf(true);
 		}
 
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
-		pageTable.increaseCs();
+		short a = ic.getIc();
+		ic.setIc(++a);
+		//pageTable.increaseCs();
 		Logger.writeToLog("AD" + address + " ");
+		TI_Register.decreaseTi();
 	}
 
-	//SB – atimtis – iš esamos registro R1 reikšmės atimama reikšmė esanti x1x2 atminties baite, rezultatas
+	//SB â€“ atimtis â€“ iÅ¡ esamos registro R1 reikÅ¡mÄ—s atimama reikÅ¡mÄ— esanti x1x2 atminties baite, rezultatas
 	//patalpinamas registre R1:      SB x1x2 => R1:=R1-[x1x2];
 	private void sb(short address) {
 		int temp = getIntFromAddress(address);
@@ -323,10 +379,11 @@ public class VirtualMachine {
 		//status flag
 		r1.setR(r1.getRInt() - 1);
 
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
-		pageTable.increaseCs();
+		short a = ic.getIc();
+		ic.setIc(++a);
+		//pageTable.increaseCs();
 		Logger.writeToLog("SB" + address + " ");
+		TI_Register.decreaseTi();
 	}
 
 	//MU -multiplication R1:=R1 *[x1x2];
@@ -338,10 +395,11 @@ public class VirtualMachine {
 		}
 		r1.setR(r1.getRInt() * temp);
 
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
-		pageTable.increaseCs();
+		short a = ic.getIc();
+		ic.setIc(++a);
+		//pageTable.increaseCs();
 		Logger.writeToLog("MU" + address + " ");
+		TI_Register.decreaseTi();
 	}
 
 	//DI - division   R2:=R1 % [x1x2];-liekana R1:=R1 *[x1x2];
@@ -351,14 +409,15 @@ public class VirtualMachine {
 		r2.setR(r1.getRInt() % temp);
 		r1.setR(r1.getRInt() / temp);
 
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
-		pageTable.increaseCs();
+		short a = ic.getIc();
+		ic.setIc(++a);
+		//pageTable.increaseCs();
 		Logger.writeToLog("DI" + address + " ");
+		TI_Register.decreaseTi();
 	}
 
 	//PALYGINIMO
-	//CR – palyginimas – esamą registro R1 reikšmė yra lyginama su reikšme esančią x1x2 atminties baite,
+	//CR â€“ palyginimas â€“ esamÄ… registro R1 reikÅ¡mÄ— yra lyginama su reikÅ¡me esanÄiÄ… x1x2 atminties baite,
 	//rezultatas patalpinamas registre C:       CR x1x2 =>
 	//          if R>[x1x2] then CF:=FALSE, ZF:= FALSE;
 	//          if R=[x1x2] then ZF:=TRUE;
@@ -376,10 +435,11 @@ public class VirtualMachine {
 			sf.setCf(true);
 		}
 
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
-		pageTable.increaseCs();
+		short a = ic.getIc();
+		ic.setIc(++a);
+		//pageTable.increaseCs();
 		Logger.writeToLog("CR" + address + " ");
+		TI_Register.decreaseTi();
 	}
 
 	//LOGINES
@@ -390,10 +450,11 @@ public class VirtualMachine {
 			sf.setZf(true);
 		}
 
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
-		pageTable.increaseCs();
+		short a = ic.getIc();
+		ic.setIc(++a);
+		//pageTable.increaseCs();
 		Logger.writeToLog("AND" + " ");
+		TI_Register.decreaseTi();
 	}
 
 	//XOR
@@ -403,10 +464,11 @@ public class VirtualMachine {
 			sf.setZf(true);
 		}
 
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
-		pageTable.increaseCs();
+		short a = ic.getIc();
+		ic.setIc(++a);
+		//pageTable.increaseCs();
 		Logger.writeToLog("XOR" + " ");
+		TI_Register.decreaseTi();
 	}
 
 	//OR
@@ -416,10 +478,11 @@ public class VirtualMachine {
 			sf.setZf(true);
 		}
 
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
-		pageTable.increaseCs();
+		short a = ic.getIc();
+		ic.setIc(++a);
+		//pageTable.increaseCs();
 		Logger.writeToLog("OR" + " ");
+		TI_Register.decreaseTi();
 	}
 
 	//NOT
@@ -429,189 +492,225 @@ public class VirtualMachine {
 			sf.setZf(true);
 		}
 
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
-		pageTable.increaseCs();
+		short a = ic.getIc();
+		ic.setIc(++a);
+		//pageTable.increaseCs();
 		Logger.writeToLog("NOT" + " ");
+		TI_Register.decreaseTi();
 	}
 
 	//VALDYMO PERDAVIMO (JUMP'AI)//<--------------------------------------------------------------------------NEEDS EDIT
-	//JU – besąlyginio valdymo perdavimas – valdymas perduodamas adresu 16*x1+x2:
+	//JU â€“ besÄ…lyginio valdymo perdavimas â€“ valdymas perduodamas adresu 16*x1+x2:
 	//JU x1x2 => IC:=16*x1+x2;
 	private void ju(short address) {
 
-		pageTable.setCs(address);
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
+		//pageTable.setCs(address);
+		ic.setIc(address);
 		Logger.writeToLog("JU" + address + " ");
+		TI_Register.decreaseTi();
 
 	}
 
-	// JM – sąlyginio valdymo perdavimas (jeigu daugiau) – valdymas perduodamas jeigu C=0, valdymas perduodamas adresu 16*x1+x2:
-	// Jm x1x2 😊 If C=0 then Ds:= 16*x1+x2;
-	private void jm(short address) {
+	// JM â€“ sÄ…lyginio valdymo perdavimas (jeigu daugiau) â€“ valdymas perduodamas jeigu C=0, valdymas perduodamas adresu 16*x1+x2:
+	// Jm x1x2 ðŸ˜Š If C=0 then Ds:= 16*x1+x2;
+	private void jg(short address) {
 		//kaip su sf reikia apsibrezt
 		if (sf.getCf() == false && sf.getZf() == false) {
-			pageTable.setCs(address);
+			ic.setIc(address);
 		}
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
+
 		Logger.writeToLog("JM" + address + " ");
+		TI_Register.decreaseTi();
 
 	}
 
-	// JE – sąlyginio valdymo perdavimas (jeigu lygu) – valdymas perduodamas jeigu C=1, valdymas perduodamas adresu 16*x1+x2:
-	//JE x1x2 😊  If C=1 then IC:= 16*x1+x2;
+	// JE â€“ sÄ…lyginio valdymo perdavimas (jeigu lygu) â€“ valdymas perduodamas jeigu C=1, valdymas perduodamas adresu 16*x1+x2:
+	//JE x1x2 ðŸ˜Š  If C=1 then IC:= 16*x1+x2;
 	private void je(short address) {
 		if (sf.getZf() == true) {
-			pageTable.setCs(address);
+			ic.setIc(address);
 		}
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
+
 		Logger.writeToLog("JE" + address + " ");
+		TI_Register.decreaseTi();
 	}
 
-	//JL – sąlyginio valdymo perdavimas (jeigu mažiau) – valdymas perduodamas jeigu C=2, valdymas perduodamas adresu 16*x1+x2:
-	//JL x1x2 😊  If C=2 then IC:= 16*x1+x2;
+	private void jn(short address) {
+		if (sf.getZf() != true) {
+			ic.setIc(address);
+		}
+
+		Logger.writeToLog("JE" + address + " ");
+		TI_Register.decreaseTi();
+	}
+
+	//JL â€“ sÄ…lyginio valdymo perdavimas (jeigu maÅ¾iau) â€“ valdymas perduodamas jeigu C=2, valdymas perduodamas adresu 16*x1+x2:
+	//JL x1x2 ðŸ˜Š  If C=2 then IC:= 16*x1+x2;
 	private void jl(short address) {
 		if (sf.getCf() == true) {
-			pageTable.setCs(address);
+			ic.setIc(address);
 		}
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
+
 		Logger.writeToLog("JL" + address + " ");
+		TI_Register.decreaseTi();
 
 	}
 
 	//PABAIGOS
-	// HALT – programos pabaigos komanda.
+	// HALT â€“ programos pabaigos komanda.
 	private void halt() {
+		RealMachine.RealMachine.si.set_4();
 		//???
 
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
-		pageTable.setCs((short) 129);
+		//short a = IC_Register.getIc();///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//IC_Register.setIc(++a);
+		//ic.setIc((short) 129);
 		Logger.writeToLog("HALT" + " ");
+		TI_Register.decreaseTi();
 	}
 
 	private static final int MAX_FILES = 6;
 	//IVEDIMO /ISVEDIMO
 	//FR - file read
 	//adress nurodo vieta i kuria rasysim vm'e, r2 is kur rasysim faile, r1 failo handleris
+
 	private void fr(short address) {
-		//String temp = "";
-		//temp = String.copyValueOf(r1.getRChar());///////////////////////////////////////////////////////////////////
-                byte[] temp = r1.getR();
-            try {
-                RealMachine.RealMachine.externalMemory.fileReadAtPos(temp);
-                RealMachine.RealMachine.pi.set_3();
-            } catch (IOException ex) {
-                RealMachine.RealMachine.pi.set_3();
-                java.util.logging.Logger.getLogger(VirtualMachine.class.getName()).log(Level.SEVERE, null, ex);
-            }
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
-		pageTable.increaseCs();
+		lastAddress = address;
+		RealMachine.RealMachine.si.set_31();
+		RealMachine.RealMachine.ioi.setIoi(3);
+		short a = ic.getIc();
+		ic.setIc(++a);
 		Logger.writeToLog("FR" + address + " ");
+		TI_Register.decreaseTi();
+		/*	byte[] temp = r1.getR();
+		try {
+			RealMachine.RealMachine.externalMemory.fileReadAtPos(temp);
+		} catch (IOException ex) {
+			RealMachine.RealMachine.pi.set_2();
+			java.util.logging.Logger.getLogger(VirtualMachine.class.getName()).log(Level.SEVERE, null, ex);
+		}
+		//pageTable.increaseCs();*/
 	}
 	//FW - file write
 	//adress nurodo vieta is kurios rasysim, r2 kur rasysim faile, r1 failo handleris
+
 	private void fw(short address) {
-		//String temp = "";
-		//temp = String.copyValueOf(r1.getRChar());///////////////////////////////////////////////////////////////////
-		byte[] temp = r1.getR();
-                byte []t = pageTable.getAtAdress(address);
-                
-            try {
-               
-                RealMachine.RealMachine.externalMemory.fileRewriteAtPos(temp,t);
-                RealMachine.RealMachine.pi.set_3();
-            } catch (IOException ex) {
-                RealMachine.RealMachine.pi.set_3();
-                java.util.logging.Logger.getLogger(VirtualMachine.class.getName()).log(Level.SEVERE, null, ex);
-            }
-		
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
-		pageTable.increaseCs();
+		lastAddress = address;
+		RealMachine.RealMachine.si.set_32();
+		RealMachine.RealMachine.ioi.setIoi(3);
+		short a = ic.getIc();
+		ic.setIc(++a);
+		//pageTable.increaseCs();
 		Logger.writeToLog("FW" + address + " ");
+		TI_Register.decreaseTi();
+		/*
+        byte[] temp = r1.getR();
+        byte[] t = pageTable.getAtAdress(address);
+
+        try {
+
+            RealMachine.RealMachine.externalMemory.fileRewriteAtPos(temp, t);
+        } catch (IOException ex) {
+            RealMachine.RealMachine.pi.set_2();
+            java.util.logging.Logger.getLogger(VirtualMachine.class.getName()).log(Level.SEVERE, null, ex);
+        }
+		 */
 	}
 	//FO - file open
 	//adresas turi failo pavadinima failo handleris grazinamas i r1
 
 	private void fo(short address) {
-		
-		//String temp = "";
-		//temp = String.copyValueOf(pageTable.getCharArrayAtAddress(address));
-		byte[] temp = pageTable.getAtAdress(address);
-		if(! RealMachine.RealMachine.externalMemory.fileOpen(temp)){
-			RealMachine.RealMachine.pi.set_3();
-		}
-		r1.setR(temp);
-
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
-		pageTable.increaseCs();
+		lastAddress = address;
+		RealMachine.RealMachine.si.set_33();
+		RealMachine.RealMachine.ioi.setIoi(3);
+		short a = ic.getIc();
+		ic.setIc(++a);
 		Logger.writeToLog("FO" + address + " ");
+		TI_Register.decreaseTi();
+
+		/*    byte[] temp = pageTable.getAtAdress(address);
+        if (!RealMachine.RealMachine.externalMemory.fileOpen(temp)) {
+            RealMachine.RealMachine.pi.set_2();
+        }
+        r1.setR(temp);
+		 */
 	}
 	//FD file delete
 	//istrina faila kurio handleris yra r1
-	private void fd() {
-		//String temp = "";
-		//temp = String.copyValueOf(r1.getRChar());///////////////////////////////////////////////////////////////////
-                byte [] temp = r1.getR();
-            try {
-                RealMachine.RealMachine.externalMemory.deleteFile(temp);
-            } catch (IOException ex) {
-                RealMachine.RealMachine.pi.set_3();
-                java.util.logging.Logger.getLogger(VirtualMachine.class.getName()).log(Level.SEVERE, null, ex);
-            }
-		
 
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
-		pageTable.increaseCs();
+	private void fd() {
+		RealMachine.RealMachine.si.set_34();
+		RealMachine.RealMachine.ioi.setIoi(3);
+		short a = ic.getIc();
+		ic.setIc(++a);
 		Logger.writeToLog("FD" + " ");
+		TI_Register.decreaseTi();
+		/*    byte[] temp = r1.getR();
+        try {
+            RealMachine.RealMachine.externalMemory.deleteFile(temp);
+        } catch (IOException ex) {
+            RealMachine.RealMachine.pi.set_2();
+            java.util.logging.Logger.getLogger(VirtualMachine.class.getName()).log(Level.SEVERE, null, ex);
+        }
+		 */
 	}
 	//FC file close
 	//uzdaromas failas kurio handleris yra r1
-	private void fc() {
-		//String temp = "";
-		//temp = String.copyValueOf(r1.getRChar());///////////////////////////////////////////////////////////////////
-		byte[] temp = r1.getR();
-                
-		if(! RealMachine.RealMachine.externalMemory.fileClose(temp)){
-			RealMachine.RealMachine.pi.set_3();
-		}
 
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
-		pageTable.increaseCs();
+	private void fc() {
+		RealMachine.RealMachine.si.set_35();
+		RealMachine.RealMachine.ioi.setIoi(3);
+		short a = ic.getIc();
+		ic.setIc(++a);
 		Logger.writeToLog("FC" + " ");
+		TI_Register.decreaseTi();
+		/*   byte[] temp = r1.getR();
+        RealMachine.RealMachine.si.set_3();
+
+        if (!RealMachine.RealMachine.externalMemory.fileClose(temp)) {
+            RealMachine.RealMachine.pi.set_2();
+        }
+		 */
 	}
 
-	// GD – įvedimas – iš įvedimo srauto paima 1 žodžio srautą ir jį įveda į atmintį pradedant atminties baitu 16*x1+x2:
+	// GD â€“ Ä¯vedimas â€“ iÅ¡ Ä¯vedimo srauto paima 1 Å¾odÅ¾io srautÄ… ir jÄ¯ Ä¯veda Ä¯ atmintÄ¯ pradedant atminties baitu 16*x1+x2:
 	// GD x1x2
 	private void gd(short address) {
+		lastAddress = address;
+		RealMachine.RealMachine.ioi.setIoi(2);
 
-		/**
-		 * TODO:	int x; read( x ); putIntToAddress(x, address);
-		 */
-		short a = IC_Register.getIc();
-		IC_Register.setIc(++a);
-		pageTable.increaseCs();
+		// * TODO:	int x; read( x ); putIntToAddress(x, address);
+		String str = "";
+		os.Main.setVi();
+
+		str = os.Main.getText();
+		RealMachine.RealMachine.si.set_1();
+
+		//System.out.println("PUSH :" + os.Main.getPush());
+		short a = ic.getIc();
+		ic.setIc(++a);
+		putToAddress(str, address);
 		Logger.writeToLog("GD" + address + " ");
+		TI_Register.decreaseTi();
+
+		os.Main.stopVi();
 	}
 
-	// PD – išvedimas – iš atminties, pradedant atminties baitu 16*x1+x2 paima 1 žodžio srautą ir jį išveda į ekraną:
+	// PD â€“ iÅ¡vedimas â€“ iÅ¡ atminties, pradedant atminties baitu 16*x1+x2 paima 1 Å¾odÅ¾io srautÄ… ir jÄ¯ iÅ¡veda Ä¯ ekranÄ…:
 	//PD x1x2
 	private void pd(short address) {
+		lastAddress = address;
+		RealMachine.RealMachine.ioi.setIoi(1);
 		// System.out.println(getIntFromAddress(address));
-		RealMachine.RealMachine.toConsole(String.valueOf(getIntFromAddress(address)));
+		RealMachine.RealMachine.toConsole(String.valueOf(pageTable.getCharArrayAtAddress(address)));
+		RealMachine.RealMachine.si.set_2();
 
-		short a = IC_Register.getIc();
-		IC_Register.setIc(a++);
-		pageTable.increaseCs();
+		short a = ic.getIc();
+		ic.setIc(++a);
+		//pageTable.increaseCs();
 		Logger.writeToLog("PD" + address + " ");
+		TI_Register.decreaseTi();
 	}
+
+
 }

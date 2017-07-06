@@ -1,3 +1,12 @@
+/**
+*Operaciniu sistemu projektas
+*Autores :
+*Evelina Bujyte
+*Anastasija Kiseliova
+*Matematine informatika
+*3 kursas
+*2017
+**/
 package RealMachine;
 
 import java.io.FileNotFoundException;

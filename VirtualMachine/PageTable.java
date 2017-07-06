@@ -1,13 +1,18 @@
+/**
+*Operaciniu sistemu projektas
+*Autores :
+*Evelina Bujyte
+*Anastasija Kiseliova
+*Matematine informatika
+*3 kursas
+*2017
+**/
 package VirtualMachine;
 
 import RealMachine.UserMemory;
 
 
 public class PageTable {
-    /**
-     * table [vmAddress] [realAddresses]:
-     * vmAddress : { rmx1,rmx2}
-     */
 
     private int[][] table;
     private short cs;
@@ -43,17 +48,12 @@ public class PageTable {
                 table[i * 16 + j][1] = j;
             }
         }
-        printPagetable();
+     //   printPagetable();
     }
     private void setCsDs(){
         this.cs = 1;
         this.ds = 0;
-        /**
-         * todo implement
-         * perbegti per visus ir radus DATA ir CODE priskitri adresa atitinkamai;
-         * dar galima idet patikrinima  i setinima ir gettinima
-         * ar tikrai nevirsija datasegmento reziu
-         */
+
         char [] temp = new char [4];
         for(; this.cs<256; this.cs++){
             temp = getCharArrayAtAddress( this.cs);

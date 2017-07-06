@@ -1,17 +1,20 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+/**
+*Operaciniu sistemu projektas
+*Autores :
+*Evelina Bujyte
+*Anastasija Kiseliova
+*Matematine informatika
+*3 kursas
+*2017
+**/
 package os;
 
 import java.util.Vector;
 
-/**
- *
- * @author ElDiablo
- */
+
 public class Memory extends javax.swing.JFrame {
+
+    Vector<String> machines;
 
     /**
      * Creates new form Memory
@@ -23,6 +26,11 @@ public class Memory extends javax.swing.JFrame {
         combo.addItem("Virtual Machine");
         combo.addItem("Real machine");
 
+        machines = new Vector<>();
+        for (int i = 0; i < RealMachine.RealMachine.vm.size(); i++) {
+               machines.add(""+RealMachine.RealMachine.vm.get(i).getId());
+        }
+        vmList.setListData(machines);
     }
 
     /**
@@ -59,6 +67,11 @@ public class Memory extends javax.swing.JFrame {
         memoryField.setRows(5);
         jScrollPane1.setViewportView(memoryField);
 
+        vmList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                vmListValueChanged(evt);
+            }
+        });
         jScrollPane2.setViewportView(vmList);
 
         jLabel1.setText("Ateityje bus vm pasirirnkimas");
@@ -123,6 +136,10 @@ public class Memory extends javax.swing.JFrame {
             vmList.setVisible(true);
         }
     }//GEN-LAST:event_comboItemStateChanged
+
+    private void vmListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_vmListValueChanged
+       memoryField.setText(RealMachine.RealMachine.vm.get(vmList.getSelectedIndex()-1).vmMemoryToString());
+    }//GEN-LAST:event_vmListValueChanged
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

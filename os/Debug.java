@@ -1,16 +1,16 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+/**
+*Operaciniu sistemu projektas
+*Autores :
+*Evelina Bujyte
+*Anastasija Kiseliova
+*Matematine informatika
+*3 kursas
+*2017
+**/
 package os;
 
 import RealMachine.RealMachine;
 
-/**
- *
- * @author ElDiablo
- */
 public class Debug extends javax.swing.JFrame {
 
     /**
@@ -148,34 +148,37 @@ public class Debug extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void nextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextActionPerformed
-        
-        String regs,chan;
-        
+
+        String regs, chan;
+
         int cnt = RealMachine.memory.getVmCount() - 1;
         String deb[] = RealMachine.vm.get(cnt).workInDebug();
-        
+
         command.setText(deb[0]);
-        if(deb[1] == "HALT"){
-            next.setEnabled(false);
-            next.setVisible(false);
-        }else{
-        regs = RealMachine.mode.toString()+'\n'+
-                "pi: "+RealMachine.pi.toString()+'\n'+"r1"+RealMachine.vm.get(cnt).r1.toString()+
-                '\n'+"r2"+RealMachine.vm.get(cnt).r2.toString() + '\n'+ RealMachine.vm.get(cnt).sf.toString()
-                +'\n'+"si: "+RealMachine.si.toString()+'\n'+RealMachine.ti.toString();
-       
-        chan = RealMachine.ioi.toString();
-        
+   //     if (deb[1] == "HALT") {
+   //         next.setEnabled(false);
+   //         next.setVisible(false);
+      //  } else {
+
+            regs = RealMachine.mode.toString() + '\n'
+                     + "r1" + RealMachine.vm.get(cnt).r1.toString()
+                    + '\n' + "r2" + RealMachine.vm.get(cnt).r2.toString() + '\n' 
+                    + RealMachine.vm.get(cnt).sf.toString() + '\n' + "ti: "
+                    + RealMachine.ti.toString() + '\n' + "ic : " + 
+                    RealMachine.vm.get(cnt).ic.toString();
+            
+
+            chan = RealMachine.ioi.toString();
+
             channels.setText(null);
             channels.append(chan);
             registers.setText(null);
             registers.append(regs);
             nextCom.setText(null);
             nextCom.append(deb[1]);
-            
-        }
-    }//GEN-LAST:event_nextActionPerformed
 
+    //    }
+    }//GEN-LAST:event_nextActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
